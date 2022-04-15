@@ -1,0 +1,1764 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NERC Documentation">
+      
+      
+      
+        <meta name="author" content="NERC">
+      
+      
+        <link rel="canonical" href="https://nerc-project.github.io/nerc-docs/other-tools/kubernetes/k3s/k3s-using-k3d/">
+      
+      <link rel="icon" href="../../../../assets/images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.2.4, mkdocs-material-7.2.5">
+    
+    
+  <title>New England Research Cloud(NERC)</title>
+
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.be71726b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.3f5d1f46.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    <script>function __prefix(e){return new URL("../../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+      <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#setup-k3s-cluster-using-k3d" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner md-announce">
+          <div class="md-banner__inner md-announce__inner md-grid md-typeset">
+            
+<div class="parent">
+  <!--<div class="maintain">
+    Upcoming system upgrade and maintenance on Wednesday April 6, 2022.
+    <a style="color: #0066cc;" href="https://nerc.mghpcc.org/events/nerc-system-upgrade-and-maintenance-april-6-2022/" target="_blank">[DETAILS]</a>
+  </div>-->
+  <div class="child">
+    <iframe src="https://nerc.instatus.com/embed-status/light-sm" width="230" height="52" frameBorder="0" scrolling="no" style="border: none;" ></iframe></div>
+</div>
+
+          </div>
+        </aside>
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="NERC Documentation" class="md-header__button md-logo" aria-label="NERC Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NERC Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Single-Node K3s Cluster using k3d
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m10-3a5 5 0 0 1 5 5 5 5 0 0 1-5 5H7a5 5 0 0 1-5-5 5 5 0 0 1 5-5h10M7 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3h10a3 3 0 0 0 3-3 3 3 0 0 0-3-3H7z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/nerc-project/nerc-docs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nerc-project/nerc-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="NERC Documentation" class="md-nav__button md-logo" aria-label="NERC Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    NERC Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/nerc-project/nerc-docs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nerc-project/nerc-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../about/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      <label class="md-nav__link" for="__nav_3">
+        Getting Started
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Getting Started
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/user-onboarding-on-NERC/" class="md-nav__link">
+        User Onboarding Process
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/create-a-user-portal-account/" class="md-nav__link">
+        How to Create a User Account
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/get-an-allocation/" class="md-nav__link">
+        How to Get An Allocation
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      <label class="md-nav__link" for="__nav_4">
+        OpenStack
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenStack" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          OpenStack
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/" class="md-nav__link">
+        OpenStack
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      <label class="md-nav__link" for="__nav_4_2">
+        Logging In
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Logging In" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Logging In
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/logging-in/access-the-openstack-dashboard/" class="md-nav__link">
+        Access the OpenStack Dashboard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/logging-in/dashboard-overview/" class="md-nav__link">
+        Dashboard Overview
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" >
+      
+      <label class="md-nav__link" for="__nav_4_3">
+        Access and Security
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Access and Security" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          Access and Security
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/access-and-security/security-groups/" class="md-nav__link">
+        Security Groups
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/access-and-security/create-a-key-pair/" class="md-nav__link">
+        Create a Key Pair
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" >
+      
+      <label class="md-nav__link" for="__nav_4_4">
+        Create &amp; Connect to the VM
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Create &amp; Connect to the VM" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          Create &amp; Connect to the VM
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/launch-a-VM/" class="md-nav__link">
+        Launch a VM
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/flavors/" class="md-nav__link">
+        Available NOVA Flavors
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/assign-a-floating-IP/" class="md-nav__link">
+        Assign a Floating IP
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4_4" type="checkbox" id="__nav_4_4_4" >
+      
+      <label class="md-nav__link" for="__nav_4_4_4">
+        Connect to the VM
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Connect to the VM" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          Connect to the VM
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/ssh-to-cloud-VM/" class="md-nav__link">
+        SSH to Cloud VM
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/bastion-host-based-ssh/" class="md-nav__link">
+        Bastion Host based SSH
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4_4_3" type="checkbox" id="__nav_4_4_4_3" >
+      
+      <label class="md-nav__link" for="__nav_4_4_4_3">
+        OpenVPN
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenVPN" data-md-level="4">
+        <label class="md-nav__title" for="__nav_4_4_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          OpenVPN
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/openvpn/" class="md-nav__link">
+        About OpenVPN
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/openvpn/openvpn_gui_for_windows/" class="md-nav__link">
+        OpenVPN GUI for Windows
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/openvpn/tunnelblick_for_macos/" class="md-nav__link">
+        Tunnelblick for MacOS
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/wireguard/" class="md-nav__link">
+        WireGuard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/sshuttle/" class="md-nav__link">
+        sshuttle
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_5" type="checkbox" id="__nav_4_5" >
+      
+      <label class="md-nav__link" for="__nav_4_5">
+        Migrating from MOC to NERC
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Migrating from MOC to NERC" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_5">
+          <span class="md-nav__icon md-icon"></span>
+          Migrating from MOC to NERC
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/migration-from-MOC-to-NERC/Step1/" class="md-nav__link">
+        Step 1 Gathering MOC information
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/migration-from-MOC-to-NERC/Step2/" class="md-nav__link">
+        Step 2 Creating NERC Containers to Migrate MOC Volumes into
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/migration-from-MOC-to-NERC/Step3/" class="md-nav__link">
+        Step 3 Moving Volumes from MOC to NERC
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6" type="checkbox" id="__nav_4_6" >
+      
+      <label class="md-nav__link" for="__nav_4_6">
+        Advanced Topics
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Advanced Topics" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_6">
+          <span class="md-nav__icon md-icon"></span>
+          Advanced Topics
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_1" type="checkbox" id="__nav_4_6_1" >
+      
+      <label class="md-nav__link" for="__nav_4_6_1">
+        Setting Up Own Network
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Setting Up Own Network" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_1">
+          <span class="md-nav__icon md-icon"></span>
+          Setting Up Own Network
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/setting-up-a-network/set-up-a-private-network/" class="md-nav__link">
+        Set up a Private Network
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/setting-up-a-network/create-a-router/" class="md-nav__link">
+        Create a Router
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_2" type="checkbox" id="__nav_4_6_2" >
+      
+      <label class="md-nav__link" for="__nav_4_6_2">
+        OpenStack CLI
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenStack CLI" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_2">
+          <span class="md-nav__icon md-icon"></span>
+          OpenStack CLI
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/openstack-cli/openstack-CLI/" class="md-nav__link">
+        OpenStack CLI
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/openstack-cli/launch-a-VM-using-openstack-CLI/" class="md-nav__link">
+        Launch a VM using OpenStack CLI
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_3" type="checkbox" id="__nav_4_6_3" >
+      
+      <label class="md-nav__link" for="__nav_4_6_3">
+        Persistent Storage
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Persistent Storage" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_3">
+          <span class="md-nav__icon md-icon"></span>
+          Persistent Storage
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/persistent-storage/volumes/" class="md-nav__link">
+        Block Storage/ Volumes/ Cinder
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/persistent-storage/object-storage/" class="md-nav__link">
+        Object Storage/ Swift
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_4" type="checkbox" id="__nav_4_6_4" >
+      
+      <label class="md-nav__link" for="__nav_4_6_4">
+        Backup your instance and volume
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Backup your instance and volume" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_4">
+          <span class="md-nav__icon md-icon"></span>
+          Backup your instance and volume
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/backup/backup-with-snapshots/" class="md-nav__link">
+        Backup with snapshots
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_5" type="checkbox" id="__nav_4_6_5" >
+      
+      <label class="md-nav__link" for="__nav_4_6_5">
+        Terraform
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Terraform" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_5">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/terraform/terraform-on-NERC/" class="md-nav__link">
+        Terraform on NERC
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/python-sdk/python-SDK/" class="md-nav__link">
+        Python SDK
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/setting-up-your-own-images/how-to-build-windows-image/" class="md-nav__link">
+        Setting up custom images
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      <label class="md-nav__link" for="__nav_5">
+        Other Tools On NERC
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Other Tools On NERC" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Other Tools On NERC
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        Other Useful Tools
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2" type="checkbox" id="__nav_5_2" checked>
+      
+      <label class="md-nav__link" for="__nav_5_2">
+        Kubernetes
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Kubernetes" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_2">
+          <span class="md-nav__icon md-icon"></span>
+          Kubernetes
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kubernetes/" class="md-nav__link">
+        Kubernetes Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../comparisons/" class="md-nav__link">
+        K8s Flavors Comparision
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_3" type="checkbox" id="__nav_5_2_3" checked>
+      
+      <label class="md-nav__link" for="__nav_5_2_3">
+        Development environment
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Development environment" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_3">
+          <span class="md-nav__icon md-icon"></span>
+          Development environment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../minikube/" class="md-nav__link">
+        Minikube
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../minishift/" class="md-nav__link">
+        Minishift
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kind/" class="md-nav__link">
+        Kind
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microk8s/" class="md-nav__link">
+        MicroK8s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_3_5" type="checkbox" id="__nav_5_2_3_5" checked>
+      
+      <label class="md-nav__link" for="__nav_5_2_3_5">
+        K3s
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="K3s" data-md-level="4">
+        <label class="md-nav__title" for="__nav_5_2_3_5">
+          <span class="md-nav__icon md-icon"></span>
+          K3s
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../k3s/" class="md-nav__link">
+        K3s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../k3s-ha-cluster/" class="md-nav__link">
+        K3s with High Availibility(HA) setup
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../k3s-using-k3sup/" class="md-nav__link">
+        Multi-master HA K3s cluster using k3sup
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Single-Node K3s Cluster using k3d
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Single-Node K3s Cluster using k3d
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install-docker" class="md-nav__link">
+    Install Docker
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-kubectl" class="md-nav__link">
+    Install kubectl
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-k3d" class="md-nav__link">
+    Installing k3d
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../k3s-ha-cluster-using-k3d/" class="md-nav__link">
+        Multi-master K3s cluster setup using k3d
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../k0s/" class="md-nav__link">
+        k0s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../crc/" class="md-nav__link">
+        CRC - Red Hat Code Ready Containers
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_4" type="checkbox" id="__nav_5_2_4" >
+      
+      <label class="md-nav__link" for="__nav_5_2_4">
+        Production environment
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Production environment" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_4">
+          <span class="md-nav__icon md-icon"></span>
+          Production environment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_4_1" type="checkbox" id="__nav_5_2_4_1" >
+      
+      <label class="md-nav__link" for="__nav_5_2_4_1">
+        Kubeadm
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Kubeadm" data-md-level="4">
+        <label class="md-nav__title" for="__nav_5_2_4_1">
+          <span class="md-nav__icon md-icon"></span>
+          Kubeadm
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kubeadm/single-master-clusters-with-kubeadm/" class="md-nav__link">
+        Bootstrapping cluster with kubeadm
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kubeadm/HA-clusters-with-kubeadm/" class="md-nav__link">
+        Creating a HA cluster with kubeadm
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kubespray/" class="md-nav__link">
+        Kubespray
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install-docker" class="md-nav__link">
+    Install Docker
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-kubectl" class="md-nav__link">
+    Install kubectl
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-k3d" class="md-nav__link">
+    Installing k3d
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/nerc-project/nerc-docs/edit/master/docs/other-tools/kubernetes/k3s/k3s-using-k3d.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="setup-k3s-cluster-using-k3d">Setup K3s cluster Using <a href="https://k3d.io/v4.4.8/">k3d</a></h1>
+<p>One of the most popular and second method of creating k3s cluster is by using <code>k3d</code>.
+By the name itself it suggests, <code>K3s-in-docker</code>, is a wrapper around K3s – Lightweight
+Kubernetes that runs it in docker. Please refer to <a href="https://collabnix.com/top-10-kubernetes-tool-you-need-for-2021-part-2/">this link</a>
+to get brief insights of this wonderful tool. It provides a seamless experience
+working with K3s cluster management with some straight forward commands. k3d is
+efficient enough to create and manage K3s single node and well as K3s High
+Availability clusters just with few commands.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For using <code>k3d</code> you must have <strong>docker</strong> installed in your system</p>
+</div>
+<hr />
+<h2 id="install-docker">Install <strong>Docker</strong></h2>
+<ul>
+<li>Install container runtime - <strong>docker</strong></li>
+</ul>
+<pre><code class="language-sh">apt-get install docker.io -y
+</code></pre>
+<ul>
+<li>Configure the Docker daemon, in particular to use systemd for the management
+of the container’s cgroups</li>
+</ul>
+<pre><code class="language-sh">cat &lt;&lt;EOF | sudo tee /etc/docker/daemon.json
+{
+&quot;exec-opts&quot;: [&quot;native.cgroupdriver=systemd&quot;]
+}
+EOF
+
+systemctl enable --now docker
+usermod -aG docker ubuntu
+systemctl daemon-reload
+systemctl restart docker
+</code></pre>
+<hr />
+<h2 id="install-kubectl">Install <strong>kubectl</strong></h2>
+<ul>
+<li>Install kubectl binary
+• <strong>kubectl</strong>: the command line util to talk to your cluster.</li>
+</ul>
+<pre><code class="language-sh">snap install kubectl --classic
+</code></pre>
+<p>This outputs: <code>kubectl 1.22.2 from Canonical✓ installed</code></p>
+<ul>
+<li>Now verify the kubectl version:</li>
+</ul>
+<pre><code class="language-sh">kubectl version -o yaml
+</code></pre>
+<hr />
+<h2 id="installing-k3d">Installing k3d</h2>
+<ul>
+<li>k3d Installation:
+The below command will install the k3d, in your system using the installation script.</li>
+</ul>
+<pre><code class="language-sh">wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+</code></pre>
+<p><strong>OR,</strong></p>
+<pre><code class="language-sh">curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+</code></pre>
+<p>To verify the installation, please run the following command:</p>
+<pre><code class="language-sh">k3d version
+
+k3d version v5.0.0
+k3s version v1.21.5-k3s1 (default)
+</code></pre>
+<p>After the successful installation, you are ready to create your cluster using k3d
+and run K3s in docker within seconds.</p>
+<ul>
+<li>
+<p>Getting Started:
+Now let's directly jump into creating our K3s cluster using <code>k3d</code>.</p>
+</li>
+<li>
+<p>Create k3d Cluster:</p>
+<p><code>k3d cluster create k3d-demo-cluster</code></p>
+<p>This single command spawns a K3s cluster with two containers: A Kubernetes
+<strong>control-plane node(server)</strong> and a <strong>load balancer(serverlb)</strong> in front of
+it. It puts both of them in a dedicated Docker network and exposes the Kubernetes
+API on a randomly chosen free port on the Docker host. It also creates a named
+Docker volume in the background as a preparation for image imports.</p>
+<p>You can also look for advance syntax for cluster creation:</p>
+<p><code>k3d cluster create mycluster --api-port 127.0.0.1:6445 --servers 3 \
+    --agents 2 --volume '/home/me/mycode:/code@agent[*]' --port '8080:80@loadbalancer'</code></p>
+<p>Here, the above single command spawns a K3s cluster with six containers:</p>
+<ul>
+<li>
+<p>load balancer</p>
+</li>
+<li>
+<p>3 servers (control-plane nodes)</p>
+</li>
+<li>
+<p>2 agents (formerly worker nodes)</p>
+</li>
+</ul>
+<hr />
+<p>With the <code>--api-port 127.0.0.1:6445</code>, you tell k3d to map the Kubernetes API
+Port (6443 internally) to <code>127.0.0.1/localhost</code>’s port <strong>6445</strong>. That means
+that you will have this connection string in your Kubeconfig:
+<code>server: https://127.0.0.1:6445</code> to connect to this cluster.</p>
+<p>This port will be mapped from the load balancer to your host system. From there,
+requests will be proxied to your server nodes, effectively simulating a production
+setup, where server nodes also can go down and you would want to failover to
+another server.</p>
+<p>The <code>--volume /home/me/mycode:/code@agent[*]</code> bind mounts your local directory
+<code>/home/me/mycode</code> to the path <code>/code</code> inside all (<code>[*]</code> of your agent nodes).
+Replace * with an index (here: 0 or 1) to only mount it into one of them.</p>
+<p>The specification telling k3d which nodes it should mount the volume to is called
+"node filter" and it’s also used for other flags, like the <code>--port</code> flag for
+port mappings.</p>
+<p>That said, <code>--port '8080:80@loadbalancer'</code> maps your local host’s port 8080 to
+port 80 on the load balancer (serverlb), which can be used to forward HTTP
+ingress traffic to your cluster. For example, you can now deploy a web app into
+the cluster (Deployment), which is exposed (Service) externally via an Ingress
+such as <code>myapp.k3d.localhost</code>.</p>
+<p>Then (provided that everything is set up to resolve that domain to your local
+host IP), you can point your browser to <code>http://myapp.k3d.localhost:8080</code> to
+access your app. Traffic then flows from your host through the Docker bridge
+interface to the load balancer. From there, it’s proxied to the cluster, where
+it passes via Ingress and Service to your application Pod.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You have to have some mechanism set up to route to resolve <code>myapp.k3d.localhost</code>
+to your local host IP (<code>127.0.0.1</code>). The most common way is using entries
+of the form <code>127.0.0.1</code> <code>myapp.k3d.localhost</code> in your <code>/etc/hosts</code> file
+(<code>C:\Windows\System32\drivers\etc\hosts</code> on Windows). However, this does
+not allow for wildcard entries (<code>*.localhost</code>), so it may become a bit
+cumbersome after a while, so you may want to have a look at tools like
+<code>dnsmasq</code> (MacOS/UNIX) or <code>Acrylic</code> (Windows)  to ease the burden.</p>
+</div>
+</li>
+<li>
+<p>Getting the cluster’s kubeconfig:
+Get the new cluster’s connection details merged into your default kubeconfig (usually
+specified using the <code>KUBECONFIG</code> environment variable or the default path
+<code>$HOME/.kube/config</code>) and directly switch to the new context:</p>
+<p><code>k3d kubeconfig merge k3d-demo-cluster --kubeconfig-switch-context</code></p>
+<p>This outputs:</p>
+<p><strong>/root/.k3d/kubeconfig-k3d-demo-cluster.yaml</strong></p>
+</li>
+<li>
+<p>Checking the nodes running on k3d cluster:</p>
+<p><code>k3d node list</code></p>
+<p><img alt="k3d nodes list" src="../../images/k3d-nodes-list.png" /></p>
+<p>You can see here two nodes. The (very) smart implementation here is that while
+the cluster is running on its node <strong>k3d-k3s-default-server-0</strong>, there is
+another "node" that acts as the load balancer i.e. <strong>k3d-k3d-demo-cluster-serverlb</strong>.</p>
+</li>
+<li>
+<p>Firing <strong>Kubectl</strong> commands that allows you to run commands against Kubernetes:</p>
+<p>i. The below command will list down the nodes available in our cluster:</p>
+<p><code>kubectl get nodes -o wide</code></p>
+<p><strong>OR,</strong></p>
+<p><code>kubectl get nodes --output wide</code></p>
+<p>The output will looks like:
+<img alt="k3d nodes list" src="../../images/k3d_nodes.png" /></p>
+<p>ii. To look at what’s inside the K3s cluster (pods, services, deployments,
+etc.):</p>
+<p><code>kubectl get all --all-namespaces</code></p>
+<p>The output will looks like:
+<img alt="k3d all" src="../../images/k3d_all.png" /></p>
+<p>We can see that, in addition of the Kubernetes service, K3s deploys DNS,
+metrics and ingress (traefik) services when we use the defaults.</p>
+<p>iii. List the active k3d clusters:</p>
+<p><code>k3d cluster list</code></p>
+<p><img alt="k3d cluster list" src="../../images/k3d-cluster-list.png" /></p>
+<p>iv. Check the cluster connectivity:</p>
+<p><code>kubectl cluster-info</code></p>
+<p><img alt="kubectl cluster-info" src="../../images/k3d-cluster-info.png" /></p>
+<p>To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.</p>
+</li>
+<li>
+<p>Check the active containers:</p>
+</li>
+</ul>
+<pre><code class="language-sh">docker ps
+</code></pre>
+<p>Now as you can observe, the cluster is up and running and we can play around the
+cluster, you can create and deploy your applications over the cluster.</p>
+<ul>
+<li>Deleting Cluster:</li>
+</ul>
+<pre><code class="language-sh">k3d cluster delete k3d-demo-cluster
+
+INFO[0000] Deleting cluster 'k3d-demo-cluster'
+INFO[0000] Deleted k3d-k3d-demo-cluster-serverlb
+INFO[0001] Deleted k3d-k3d-demo-cluster-server-0
+INFO[0001] Deleting cluster network 'k3d-k3d-demo-cluster'
+INFO[0001] Deleting image volume 'k3d-k3d-demo-cluster-images'
+INFO[0001] Removing cluster details from default kubeconfig...
+INFO[0001] Removing standalone kubeconfig file (if there is one)...
+INFO[0001] Successfully deleted cluster k3d-demo-cluster!
+</code></pre>
+<p>You can also create a <a href="../k3s-ha-cluster-using-k3d/">k3d High Availability cluster</a>
+and add as many nodes you want within seconds.</p>
+<hr />
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+  <footer class="md-footer">
+    <aside class="footer-left">
+        <a href="http://www.bu.edu/tech/services/research/" title="Boston University" target="_blank">
+          <img alt="Boston University Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/boston-university-logo.png"/>
+        </a>
+
+    </aside>
+
+    <aside class="footer-right">
+        <a href="https://www.mghpcc.org/" title="MGHPCC" target="_blank">
+          <img alt="MGHPCC Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/MGHPCC_logo.png"/>
+        </a>
+    </aside>
+
+    <aside class="footer-center">
+        <a href="http://rc.fas.harvard.edu" title="Harvard University" target="_blank">
+          <img alt="Harvard University Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/harvard-university_logo.png"/>
+        </a>
+    </aside>
+  </footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.409db549.min.js", "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.56a63758.min.js"></script>
+      
+        <script src="../../../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

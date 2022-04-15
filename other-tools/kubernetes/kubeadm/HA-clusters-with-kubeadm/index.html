@@ -1,0 +1,2469 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NERC Documentation">
+      
+      
+      
+        <meta name="author" content="NERC">
+      
+      
+        <link rel="canonical" href="https://nerc-project.github.io/nerc-docs/other-tools/kubernetes/kubeadm/HA-clusters-with-kubeadm/">
+      
+      <link rel="icon" href="../../../../assets/images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.2.4, mkdocs-material-7.2.5">
+    
+    
+  <title>New England Research Cloud(NERC)</title>
+
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.be71726b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.3f5d1f46.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    <script>function __prefix(e){return new URL("../../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+      <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#highly-available-kubernetes-cluster-using-kubeadm" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner md-announce">
+          <div class="md-banner__inner md-announce__inner md-grid md-typeset">
+            
+<div class="parent">
+  <!--<div class="maintain">
+    Upcoming system upgrade and maintenance on Wednesday April 6, 2022.
+    <a style="color: #0066cc;" href="https://nerc.mghpcc.org/events/nerc-system-upgrade-and-maintenance-april-6-2022/" target="_blank">[DETAILS]</a>
+  </div>-->
+  <div class="child">
+    <iframe src="https://nerc.instatus.com/embed-status/light-sm" width="230" height="52" frameBorder="0" scrolling="no" style="border: none;" ></iframe></div>
+</div>
+
+          </div>
+        </aside>
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="NERC Documentation" class="md-header__button md-logo" aria-label="NERC Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NERC Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Creating a HA cluster with kubeadm
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m10-3a5 5 0 0 1 5 5 5 5 0 0 1-5 5H7a5 5 0 0 1-5-5 5 5 0 0 1 5-5h10M7 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3h10a3 3 0 0 0 3-3 3 3 0 0 0-3-3H7z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/nerc-project/nerc-docs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nerc-project/nerc-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="NERC Documentation" class="md-nav__button md-logo" aria-label="NERC Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    NERC Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/nerc-project/nerc-docs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nerc-project/nerc-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../about/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      <label class="md-nav__link" for="__nav_3">
+        Getting Started
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Getting Started
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/user-onboarding-on-NERC/" class="md-nav__link">
+        User Onboarding Process
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/create-a-user-portal-account/" class="md-nav__link">
+        How to Create a User Account
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/get-an-allocation/" class="md-nav__link">
+        How to Get An Allocation
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      <label class="md-nav__link" for="__nav_4">
+        OpenStack
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenStack" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          OpenStack
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/" class="md-nav__link">
+        OpenStack
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      <label class="md-nav__link" for="__nav_4_2">
+        Logging In
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Logging In" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Logging In
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/logging-in/access-the-openstack-dashboard/" class="md-nav__link">
+        Access the OpenStack Dashboard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/logging-in/dashboard-overview/" class="md-nav__link">
+        Dashboard Overview
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" >
+      
+      <label class="md-nav__link" for="__nav_4_3">
+        Access and Security
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Access and Security" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          Access and Security
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/access-and-security/security-groups/" class="md-nav__link">
+        Security Groups
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/access-and-security/create-a-key-pair/" class="md-nav__link">
+        Create a Key Pair
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" >
+      
+      <label class="md-nav__link" for="__nav_4_4">
+        Create &amp; Connect to the VM
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Create &amp; Connect to the VM" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          Create &amp; Connect to the VM
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/launch-a-VM/" class="md-nav__link">
+        Launch a VM
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/flavors/" class="md-nav__link">
+        Available NOVA Flavors
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/assign-a-floating-IP/" class="md-nav__link">
+        Assign a Floating IP
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4_4" type="checkbox" id="__nav_4_4_4" >
+      
+      <label class="md-nav__link" for="__nav_4_4_4">
+        Connect to the VM
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Connect to the VM" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          Connect to the VM
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/ssh-to-cloud-VM/" class="md-nav__link">
+        SSH to Cloud VM
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/bastion-host-based-ssh/" class="md-nav__link">
+        Bastion Host based SSH
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4_4_3" type="checkbox" id="__nav_4_4_4_3" >
+      
+      <label class="md-nav__link" for="__nav_4_4_4_3">
+        OpenVPN
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenVPN" data-md-level="4">
+        <label class="md-nav__title" for="__nav_4_4_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          OpenVPN
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/openvpn/" class="md-nav__link">
+        About OpenVPN
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/openvpn/openvpn_gui_for_windows/" class="md-nav__link">
+        OpenVPN GUI for Windows
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/openvpn/tunnelblick_for_macos/" class="md-nav__link">
+        Tunnelblick for MacOS
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/wireguard/" class="md-nav__link">
+        WireGuard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/create-and-connect-to-the-VM/sshuttle/" class="md-nav__link">
+        sshuttle
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_5" type="checkbox" id="__nav_4_5" >
+      
+      <label class="md-nav__link" for="__nav_4_5">
+        Migrating from MOC to NERC
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Migrating from MOC to NERC" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_5">
+          <span class="md-nav__icon md-icon"></span>
+          Migrating from MOC to NERC
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/migration-from-MOC-to-NERC/Step1/" class="md-nav__link">
+        Step 1 Gathering MOC information
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/migration-from-MOC-to-NERC/Step2/" class="md-nav__link">
+        Step 2 Creating NERC Containers to Migrate MOC Volumes into
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/migration-from-MOC-to-NERC/Step3/" class="md-nav__link">
+        Step 3 Moving Volumes from MOC to NERC
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6" type="checkbox" id="__nav_4_6" >
+      
+      <label class="md-nav__link" for="__nav_4_6">
+        Advanced Topics
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Advanced Topics" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_6">
+          <span class="md-nav__icon md-icon"></span>
+          Advanced Topics
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_1" type="checkbox" id="__nav_4_6_1" >
+      
+      <label class="md-nav__link" for="__nav_4_6_1">
+        Setting Up Own Network
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Setting Up Own Network" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_1">
+          <span class="md-nav__icon md-icon"></span>
+          Setting Up Own Network
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/setting-up-a-network/set-up-a-private-network/" class="md-nav__link">
+        Set up a Private Network
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/setting-up-a-network/create-a-router/" class="md-nav__link">
+        Create a Router
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_2" type="checkbox" id="__nav_4_6_2" >
+      
+      <label class="md-nav__link" for="__nav_4_6_2">
+        OpenStack CLI
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenStack CLI" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_2">
+          <span class="md-nav__icon md-icon"></span>
+          OpenStack CLI
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/openstack-cli/openstack-CLI/" class="md-nav__link">
+        OpenStack CLI
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/openstack-cli/launch-a-VM-using-openstack-CLI/" class="md-nav__link">
+        Launch a VM using OpenStack CLI
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_3" type="checkbox" id="__nav_4_6_3" >
+      
+      <label class="md-nav__link" for="__nav_4_6_3">
+        Persistent Storage
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Persistent Storage" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_3">
+          <span class="md-nav__icon md-icon"></span>
+          Persistent Storage
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/persistent-storage/volumes/" class="md-nav__link">
+        Block Storage/ Volumes/ Cinder
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/persistent-storage/object-storage/" class="md-nav__link">
+        Object Storage/ Swift
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_4" type="checkbox" id="__nav_4_6_4" >
+      
+      <label class="md-nav__link" for="__nav_4_6_4">
+        Backup your instance and volume
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Backup your instance and volume" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_4">
+          <span class="md-nav__icon md-icon"></span>
+          Backup your instance and volume
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/backup/backup-with-snapshots/" class="md-nav__link">
+        Backup with snapshots
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_5" type="checkbox" id="__nav_4_6_5" >
+      
+      <label class="md-nav__link" for="__nav_4_6_5">
+        Terraform
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Terraform" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_5">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/terraform/terraform-on-NERC/" class="md-nav__link">
+        Terraform on NERC
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/python-sdk/python-SDK/" class="md-nav__link">
+        Python SDK
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../openstack/advanced-openstack-topics/setting-up-your-own-images/how-to-build-windows-image/" class="md-nav__link">
+        Setting up custom images
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      <label class="md-nav__link" for="__nav_5">
+        Other Tools On NERC
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Other Tools On NERC" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Other Tools On NERC
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        Other Useful Tools
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2" type="checkbox" id="__nav_5_2" checked>
+      
+      <label class="md-nav__link" for="__nav_5_2">
+        Kubernetes
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Kubernetes" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_2">
+          <span class="md-nav__icon md-icon"></span>
+          Kubernetes
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kubernetes/" class="md-nav__link">
+        Kubernetes Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../comparisons/" class="md-nav__link">
+        K8s Flavors Comparision
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_3" type="checkbox" id="__nav_5_2_3" >
+      
+      <label class="md-nav__link" for="__nav_5_2_3">
+        Development environment
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Development environment" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_3">
+          <span class="md-nav__icon md-icon"></span>
+          Development environment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../minikube/" class="md-nav__link">
+        Minikube
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../minishift/" class="md-nav__link">
+        Minishift
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kind/" class="md-nav__link">
+        Kind
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microk8s/" class="md-nav__link">
+        MicroK8s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_3_5" type="checkbox" id="__nav_5_2_3_5" >
+      
+      <label class="md-nav__link" for="__nav_5_2_3_5">
+        K3s
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="K3s" data-md-level="4">
+        <label class="md-nav__title" for="__nav_5_2_3_5">
+          <span class="md-nav__icon md-icon"></span>
+          K3s
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../k3s/k3s/" class="md-nav__link">
+        K3s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../k3s/k3s-ha-cluster/" class="md-nav__link">
+        K3s with High Availibility(HA) setup
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../k3s/k3s-using-k3sup/" class="md-nav__link">
+        Multi-master HA K3s cluster using k3sup
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../k3s/k3s-using-k3d/" class="md-nav__link">
+        Single-Node K3s Cluster using k3d
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../k3s/k3s-ha-cluster-using-k3d/" class="md-nav__link">
+        Multi-master K3s cluster setup using k3d
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../k0s/" class="md-nav__link">
+        k0s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../crc/" class="md-nav__link">
+        CRC - Red Hat Code Ready Containers
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_4" type="checkbox" id="__nav_5_2_4" checked>
+      
+      <label class="md-nav__link" for="__nav_5_2_4">
+        Production environment
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Production environment" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_4">
+          <span class="md-nav__icon md-icon"></span>
+          Production environment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_4_1" type="checkbox" id="__nav_5_2_4_1" checked>
+      
+      <label class="md-nav__link" for="__nav_5_2_4_1">
+        Kubeadm
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Kubeadm" data-md-level="4">
+        <label class="md-nav__title" for="__nav_5_2_4_1">
+          <span class="md-nav__icon md-icon"></span>
+          Kubeadm
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-master-clusters-with-kubeadm/" class="md-nav__link">
+        Bootstrapping cluster with kubeadm
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Creating a HA cluster with kubeadm
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Creating a HA cluster with kubeadm
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#objectives" class="md-nav__link">
+    Objectives
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components-and-architecure" class="md-nav__link">
+    Components and architecure
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-requisite" class="md-nav__link">
+    Pre-requisite
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#steps" class="md-nav__link">
+    Steps
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-loadbalancer" class="md-nav__link">
+    Setting up loadbalancer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-kubeadm-kubelet-and-docker-on-master-and-worker-nodes" class="md-nav__link">
+    Install kubeadm, kubelet and docker on master and worker nodes
+  </a>
+  
+    <nav class="md-nav" aria-label="Install kubeadm, kubelet and docker on master and worker nodes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-docker-on-master-and-worker-nodes" class="md-nav__link">
+    Install Docker on master and worker nodes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-kubeadm-to-bootstrap-the-cluster" class="md-nav__link">
+    Configure kubeadm to bootstrap the cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-kubeconfig-on-loadbalancer-node" class="md-nav__link">
+    Configure kubeconfig on loadbalancer node
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-kubectl" class="md-nav__link">
+    Install kubectl
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-cni-network-plugin" class="md-nav__link">
+    Install CNI network plugin
+  </a>
+  
+    <nav class="md-nav" aria-label="Install CNI network plugin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cni-overview" class="md-nav__link">
+    CNI overview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-cni-options" class="md-nav__link">
+    Supported CNI options
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-a-sample-nginx-application" class="md-nav__link">
+    Deploy A Sample Nginx Application
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-a-k8s-dashboard" class="md-nav__link">
+    Deploy A K8s Dashboard
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#watch-demo-video" class="md-nav__link">
+    Watch Demo Video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clean-up" class="md-nav__link">
+    Clean Up
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-remove-the-node" class="md-nav__link">
+    How to Remove the node?
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kubespray/" class="md-nav__link">
+        Kubespray
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#objectives" class="md-nav__link">
+    Objectives
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components-and-architecure" class="md-nav__link">
+    Components and architecure
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-requisite" class="md-nav__link">
+    Pre-requisite
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#steps" class="md-nav__link">
+    Steps
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-loadbalancer" class="md-nav__link">
+    Setting up loadbalancer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-kubeadm-kubelet-and-docker-on-master-and-worker-nodes" class="md-nav__link">
+    Install kubeadm, kubelet and docker on master and worker nodes
+  </a>
+  
+    <nav class="md-nav" aria-label="Install kubeadm, kubelet and docker on master and worker nodes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-docker-on-master-and-worker-nodes" class="md-nav__link">
+    Install Docker on master and worker nodes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-kubeadm-to-bootstrap-the-cluster" class="md-nav__link">
+    Configure kubeadm to bootstrap the cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-kubeconfig-on-loadbalancer-node" class="md-nav__link">
+    Configure kubeconfig on loadbalancer node
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-kubectl" class="md-nav__link">
+    Install kubectl
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-cni-network-plugin" class="md-nav__link">
+    Install CNI network plugin
+  </a>
+  
+    <nav class="md-nav" aria-label="Install CNI network plugin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cni-overview" class="md-nav__link">
+    CNI overview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-cni-options" class="md-nav__link">
+    Supported CNI options
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-a-sample-nginx-application" class="md-nav__link">
+    Deploy A Sample Nginx Application
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-a-k8s-dashboard" class="md-nav__link">
+    Deploy A K8s Dashboard
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#watch-demo-video" class="md-nav__link">
+    Watch Demo Video
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clean-up" class="md-nav__link">
+    Clean Up
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-remove-the-node" class="md-nav__link">
+    How to Remove the node?
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/nerc-project/nerc-docs/edit/master/docs/other-tools/kubernetes/kubeadm/HA-clusters-with-kubeadm.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="highly-available-kubernetes-cluster-using-kubeadm">Highly Available Kubernetes Cluster using kubeadm</h1>
+<h2 id="objectives">Objectives</h2>
+<ul>
+<li>Install a multi control-plane(master) Kubernetes cluster</li>
+<li>Install a Pod network on the cluster so that your Pods can talk to each other</li>
+<li>Deploy and test a sample app</li>
+<li>Deploy K8s Dashboard to view all cluster's components</li>
+</ul>
+<h2 id="components-and-architecure">Components and architecure</h2>
+<p>This shows components and architecture of a highly-available, production-grade
+Kubernetes cluster.</p>
+<p><img alt="Components and architecure" src="../../images/k8s_HA_cluster.png" /></p>
+<p>You can learn about each component from <a href="https://kubernetes.io/docs/concepts/overview/components/">Kubernetes Componets</a>.</p>
+<h2 id="pre-requisite">Pre-requisite</h2>
+<p>You will need 2 control-plane(master node) and 2 worker nodes to create a
+multi-master kubernetes cluster using <code>kubeadm</code>. You are going to use the
+following set up for this purpose:</p>
+<ul>
+<li>2 Linux machines for master, ubuntu-21.04-x86_64, m1.medium flavor with 2vCPU,
+ 4GB RAM, 10GB storage.</li>
+<li>2 Linux machines for worker, ubuntu-21.04-x86_64, m1.small flavor with 1vCPU,
+ 2GB RAM, 10GB storage - also <a href="../../../../openstack/create-and-connect-to-the-VM/assign-a-floating-IP/">assign Floating IPs</a>
+ to both of the worker nodes.</li>
+<li>1 Linux machine for loadbalancer, ubuntu-21.04-x86_64, m1.small flavor with
+1vCPU, 2GB RAM, 10GB storage</li>
+<li>ssh access to all machines:  <a href="../../../../openstack/create-and-connect-to-the-VM/bastion-host-based-ssh/">Read more here</a>
+on how to setup SSH to your remote VMs.</li>
+<li>
+<p>Create 2 security groups with appropriate <a href="https://kubernetes.io/docs/reference/ports-and-protocols/">ports and protocols</a>:</p>
+<p>i. To be used by the master nodes:
+<img alt="Control plane ports and protocols" src="../../images/control_plane_ports_protocols.png" /></p>
+<p>ii. To be used by the worker nodes:
+<img alt="Worker node ports and protocols" src="../../images/worker_nodes_ports_protocols.png" />
+- setup Unique hostname to each machine using the following command:</p>
+</li>
+</ul>
+<pre><code class="language-sh">echo &quot;&lt;node_internal_IP&gt; &lt;host_name&gt;&quot; &gt;&gt; /etc/hosts
+hostnamectl set-hostname &lt;host_name&gt;
+</code></pre>
+<p>For example,</p>
+<pre><code class="language-sh">echo &quot;192.168.0.167 loadbalancer&quot; &gt;&gt; /etc/hosts
+hostnamectl set-hostname loadbalancer
+</code></pre>
+<h2 id="steps">Steps</h2>
+<ol>
+<li>Prepare the Loadbalancer node to communicate with the two master nodes'
+apiservers on their IPs via port 6443.</li>
+<li>Do following in all the nodes except the Loadbalancer node:<ul>
+<li>Disable swap.</li>
+<li>Install <code>kubelet</code> and <code>kubeadm</code>.</li>
+<li>Install container runtime - you will be using <em><code>Docker</code></em>.</li>
+</ul>
+</li>
+<li>Initiate <code>kubeadm</code> control plane configuration on one of the master nodes.</li>
+<li>Save the new master and worker node join commands with the token.</li>
+<li>Join the second master node to the control plane using the join command.</li>
+<li>Join the worker nodes to the control plane using the join command.</li>
+<li>Configure kubeconfig(<code>$HOME/.kube/config</code>) on loadbalancer node.</li>
+<li>Install <code>kubectl</code> on Loadbalancer node.</li>
+<li>Install CNI network plugin i.e. <strong>Flannel</strong> on Loadbalancer node.</li>
+<li>Validate all cluster components and nodes are visible on Loadbalancer node.</li>
+<li>Deploy a sample app and validate the app from Loadbalancer node.</li>
+</ol>
+<hr />
+<h2 id="setting-up-loadbalancer">Setting up loadbalancer</h2>
+<p>You will use <strong>HAPROXY</strong> as the primary loadbalancer, but you can use any other
+options as well. This node will be not part of the K8s cluster but will be
+outside of the cluster and interacts with the cluster using ports.</p>
+<p>You have 2 master nodes. Which means the user can connect to either of the 2
+apiservers. The loadbalancer will be used to loadbalance between the 2 apiservers.</p>
+<ul>
+<li>
+<p>Login to the loadbalancer node</p>
+</li>
+<li>
+<p>Switch as root - <code>sudo su</code></p>
+</li>
+<li>
+<p>Update your repository and your system</p>
+</li>
+</ul>
+<pre><code class="language-sh">sudo apt-get update &amp;&amp; sudo apt-get upgrade -y
+
+</code></pre>
+<ul>
+<li>Install haproxy</li>
+</ul>
+<pre><code class="language-sh">sudo apt-get install haproxy -y
+</code></pre>
+<ul>
+<li>Edit haproxy configuration</li>
+</ul>
+<pre><code class="language-sh">vi /etc/haproxy/haproxy.cfg
+</code></pre>
+<p>Add the below lines to create a frontend configuration for loadbalancer -</p>
+<pre><code class="language-sh">frontend fe-apiserver
+   bind 0.0.0.0:6443
+   mode tcp
+   option tcplog
+   default_backend be-apiserver
+</code></pre>
+<p>Add the below lines to create a backend configuration for master1 and master2
+nodes at port <strong>6443</strong>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>6443 is the default port of <strong>kube-apiserver</strong></p>
+</div>
+<pre><code class="language-sh">backend be-apiserver
+   mode tcp
+   option tcplog
+   option tcp-check
+   balance roundrobin
+   default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 250 maxqueue 256 weight 100 #&lt;!-- markdownlint-disable --&gt;
+
+       server master1 10.138.0.15:6443 check
+       server master2 10.138.0.16:6443 check
+</code></pre>
+<p>Here - <strong>master1</strong> and <strong>master2</strong> are the hostnames of the master nodes and
+<strong>10.138.0.15</strong> and <strong>10.138.0.16</strong> are the corresponding internal IP addresses.</p>
+<ul>
+<li>Restart and Verify haproxy</li>
+</ul>
+<pre><code class="language-sh">systemctl restart haproxy
+systemctl status haproxy
+</code></pre>
+<p>Ensure haproxy config file is correctly formatted:</p>
+<pre><code class="language-sh">haproxy -c -q -V -f /etc/haproxy/haproxy.cfg
+</code></pre>
+<p>Ensure haproxy is in running status.</p>
+<p>Run <code>nc</code> command as below:</p>
+<pre><code class="language-sh">nc -v localhost 6443
+Connection to localhost 6443 port [tcp/*] succeeded!
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you see failures for <code>master1</code> and <code>master2</code> connectivity, you can ignore
+them for time being as you have not yet installed anything on the servers.</p>
+</div>
+<hr />
+<h2 id="install-kubeadm-kubelet-and-docker-on-master-and-worker-nodes">Install kubeadm, kubelet and docker on master and worker nodes</h2>
+<p><code>kubeadm</code> will not install or manage <code>kubelet</code> or <code>kubectl</code> for you, so you will
+need to ensure they match the version of the Kubernetes control plane you want kubeadm
+to install for you.  You will install these packages on all of your machines:</p>
+<p>• <strong>kubeadm</strong>: the command to bootstrap the cluster.</p>
+<p>• <strong>kubelet</strong>: the component that runs on all of the machines in your cluster and
+does things like starting pods and containers.</p>
+<p>• <strong>kubectl</strong>: the command line util to talk to your cluster.</p>
+<p>In this step, you will install kubelet and kubeadm on the below nodes</p>
+<ul>
+<li>master1</li>
+<li>master2</li>
+<li>worker1</li>
+<li>worker2</li>
+</ul>
+<p>The below steps will be performed on all the above mentioned nodes:</p>
+<ul>
+<li>
+<p>SSH into all the 4 machines</p>
+</li>
+<li>
+<p>Switch as root: <code>sudo su</code></p>
+</li>
+<li>
+<p>Update the repositories and packages:</p>
+</li>
+</ul>
+<pre><code class="language-sh">apt-get update &amp;&amp; apt-get upgrade -y
+</code></pre>
+<ul>
+<li>Turn off <code>swap</code></li>
+</ul>
+<pre><code class="language-sh">swapoff -a
+sed -i '/ swap / s/^/#/' /etc/fstab
+</code></pre>
+<ul>
+<li>Install <code>curl</code> and <code>apt-transport-https</code></li>
+</ul>
+<pre><code class="language-sh">apt-get update &amp;&amp; apt-get install -y apt-transport-https curl
+</code></pre>
+<ul>
+<li>Download the Google Cloud public signing key and add key to verify releases</li>
+</ul>
+<pre><code class="language-sh">curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+</code></pre>
+<ul>
+<li>add kubernetes apt repo</li>
+</ul>
+<pre><code class="language-sh">cat &lt;&lt;EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+</code></pre>
+<ul>
+<li>Install kubelet and kubeadm</li>
+</ul>
+<pre><code class="language-sh">apt-get update
+apt-get install -y kubelet kubeadm
+</code></pre>
+<ul>
+<li><code>apt-mark hold</code> is used so that these packages will not be updated/removed automatically</li>
+</ul>
+<pre><code class="language-sh">apt-mark hold kubelet kubeadm
+</code></pre>
+<h3 id="install-docker-on-master-and-worker-nodes">Install <strong>Docker</strong> on master and worker nodes</h3>
+<ul>
+<li>Install container runtime - <strong>docker</strong></li>
+</ul>
+<pre><code class="language-sh">sudo apt-get install docker.io -y
+</code></pre>
+<ul>
+<li>Configure the Docker daemon, in particular to use systemd for the management
+of the container’s cgroups</li>
+</ul>
+<pre><code class="language-sh">cat &lt;&lt;EOF | sudo tee /etc/docker/daemon.json
+{
+&quot;exec-opts&quot;: [&quot;native.cgroupdriver=systemd&quot;]
+}
+EOF
+
+systemctl enable --now docker
+usermod -aG docker ubuntu
+systemctl daemon-reload
+systemctl restart docker
+</code></pre>
+<ul>
+<li>Ensure net.bridge.bridge-nf-call-iptables is set to 1 in your sysctl config</li>
+</ul>
+<p>For more <a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#letting-iptables-see-bridged-traffic">Read this</a>.</p>
+<pre><code class="language-sh">sysctl net.bridge.bridge-nf-call-iptables=1
+</code></pre>
+<hr />
+<h2 id="configure-kubeadm-to-bootstrap-the-cluster">Configure kubeadm to bootstrap the cluster</h2>
+<p>You will start off by initializing only one master node. For this purpose, you
+choose <code>master1</code> to initialize our first control plane but you can also do the
+same in <code>master2</code>.</p>
+<ul>
+<li>SSH into <strong>master1</strong> machine</li>
+<li>Switch to root user: <code>sudo su</code></li>
+<li>Execute the below command to initialize the cluster:</li>
+</ul>
+<pre><code class="language-sh">kubeadm config images pull
+kubeadm init --control-plane-endpoint
+&quot;LOAD_BALANCER_IP_OR_HOSTNAME:LOAD_BALANCER_PORT&quot; --upload-certs --pod-network-cidr=10.244.0.0/16
+</code></pre>
+<p>Here, you can use either the IP address or the hostname of the loadbalancer in
+place of <LOAD_BALANCER_IP_OR_HOSTNAME>. You have not enabled the hostname of
+the server, i.e. <code>loadbalancer</code> as the LOAD_BALANCER_IP_OR_HOSTNAME that is
+visible from the <strong>master1</strong> node. so instead of using not resolvable hostnames
+across your network, you will be using the IP address of the Loadbalancer server.</p>
+<p>The <LOAD_BALANCER_PORT> is the front end configuration port defined in HAPROXY
+configuration. For this, you have kept the port as <strong>6443</strong> which is the default
+<code>apiserver</code> port.</p>
+<div class="admonition note">
+<p class="admonition-title">Important Note</p>
+<p><code>--pod-network-cidr</code> value depends upon what CNI plugin you going to use so
+need to be very careful while setting this CIDR values. In our case, you are
+going to use <strong>Flannel</strong> CNI network plugin so you will use:
+<code>--pod-network-cidr=10.244.0.0/16</code>. If you are opted to use <strong>Calico</strong> CNI
+network plugin then you need to use: <code>--pod-network-cidr=192.168.0.0/16</code> and
+if you are opted to use <strong>Weave Net</strong> no need to pass this parameter.</p>
+</div>
+<p>For example, our <code>Flannel</code> CNI network plugin based kubeadm init command with
+<em>loadbalancer node</em> with internal IP: <code>192.168.0.167</code> look like below:</p>
+<pre><code class="language-sh">kubeadm config images pull
+kubeadm init --control-plane-endpoint &quot;192.168.0.167:6443&quot; --upload-certs --pod-network-cidr=10.244.0.0/16
+</code></pre>
+<p>Save the output in some secure file for future use. This will show an unique token
+to join the control plane. The output from <code>kubeadm init</code> should looks like below:</p>
+<pre><code class="language-sh">Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run &quot;kubectl apply -f [podnetwork].yaml&quot; with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+You can now join any number of the control-plane node running the following
+command on each as root:
+
+  kubeadm join 192.168.0.167:6443 --token cnslau.kd5fjt96jeuzymzb \
+    --discovery-token-ca-cert-hash sha256:871ab3f050bc9790c977daee9e44cf52e15ee3
+    7ab9834567333b939458a5bfb5 \
+    --control-plane --certificate-key 824d9a0e173a810416b4bca7038fb33b616108c17abcbc5eaef8651f11e3d146
+
+Please note that the certificate-key gives access to cluster sensitive data, keep
+it secret!
+As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you
+can use &quot;kubeadm init phase upload-certs --upload-certs&quot; to reload certs afterward.
+
+Then you can join any number of worker nodes by running the following on each as
+root:
+
+kubeadm join 192.168.0.167:6443 --token cnslau.kd5fjt96jeuzymzb \
+    --discovery-token-ca-cert-hash sha256:871ab3f050bc9790c977daee9e44cf52e15ee37ab9834567333b939458a5bfb5
+</code></pre>
+<p>The output consists of 3 major tasks:</p>
+<p>A. Setup <code>kubeconfig</code> using on current master node:
+As you are running as <code>root</code> user so you need to run the following command:</p>
+<pre><code class="language-sh">export KUBECONFIG=/etc/kubernetes/admin.conf
+</code></pre>
+<p>We need to run the below commands as a normal user to use the kubectl from terminal.</p>
+<pre><code class="language-sh">mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+</code></pre>
+<p>Now the machine is initialized as master.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Kubeadm signs the certificate in the admin.conf to have <code>Subject: O = system:masters, CN = kubernetes-admin. system:masters</code> is a break-glass, super user group that bypasses the authorization layer (e.g. RBAC). Do not share the admin.conf file with anyone and instead grant users custom permissions by generating them a kubeconfig file using the <code>kubeadm kubeconfig user</code> command.</p>
+</div>
+<p>B. Setup a new control plane (master) i.e. <code>master2</code> by running following
+command on <strong>master2</strong> node:</p>
+<pre><code class="language-sh">kubeadm join 192.168.0.167:6443 --token cnslau.kd5fjt96jeuzymzb \
+    --discovery-token-ca-cert-hash sha256:871ab3f050bc9790c977daee9e44cf52e1
+        5ee37ab9834567333b939458a5bfb5 \
+    --control-plane --certificate-key 824d9a0e173a810416b4bca7038fb33b616108c17abcbc5eaef8651f11e3d146
+</code></pre>
+<p>C. Join worker nodes running following command on individual workder nodes:</p>
+<pre><code class="language-sh">kubeadm join 192.168.0.167:6443 --token cnslau.kd5fjt96jeuzymzb \
+    --discovery-token-ca-cert-hash sha256:871ab3f050bc9790c977daee9e44cf52e15ee37ab9834567333b939458a5bfb5
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Important Note</p>
+<p><strong>Your output will be different than what is provided here. While
+performing the rest of the demo, ensure that you are executing the
+command provided by your output and dont copy and paste from here.</strong></p>
+</div>
+<p>If you do not have the token, you can get it by running the following command on
+the control-plane node:</p>
+<pre><code class="language-sh">kubeadm token list
+</code></pre>
+<p>The output is similar to this:</p>
+<pre><code class="language-sh">TOKEN     TTL  EXPIRES      USAGES           DESCRIPTION            EXTRA GROUPS
+8ewj1p... 23h  2018-06-12   authentication,  The default bootstrap  system:
+                            signing          token generated by     bootstrappers:
+                                            'kubeadm init'.         kubeadm:
+                                                                    default-node-token
+</code></pre>
+<p>If you missed the join command, execute the following command
+<code>kubeadm token create --print-join-command</code> in the master node to recreate the
+token with the join command.</p>
+<pre><code class="language-sh">root@master:~$ kubeadm token create --print-join-command
+
+kubeadm join 10.2.0.4:6443 --token xyzeyi.wxer3eg9vj8hcpp2 \
+--discovery-token-ca-cert-hash sha256:ccfc92b2a31b002c3151cdbab77ff4dc32ef13b213fa3a9876e126831c76f7fa
+</code></pre>
+<p>By default, tokens expire after 24 hours. If you are joining a node to the cluster
+after the current token has expired, you can create a new token by running the
+following command on the control-plane node:</p>
+<pre><code class="language-sh">kubeadm token create
+</code></pre>
+<p>The output is similar to this:
+<code>5didvk.d09sbcov8ph2amjw</code></p>
+<p>We can use this new token to join:</p>
+<pre><code class="language-sh">$ kubeadm join &lt;master-ip&gt;:&lt;master-port&gt; --token &lt;token&gt; \
+    --discovery-token-ca-cert-hash sha256:&lt;hash&gt;
+</code></pre>
+<hr />
+<ul>
+<li>SSH into <code>master2</code></li>
+<li>Switch to root user:<code>sudo su</code></li>
+<li>Check the command provided by the output of <code>master1</code>:</li>
+</ul>
+<p>You can now use the below command to add another control-plane node(master) to
+the control plane:</p>
+<pre><code class="language-sh">kubeadm join 192.168.0.167:6443 --token cnslau.kd5fjt96jeuzymzb
+    --discovery-token-ca-cert-hash sha256:871ab3f050bc9790c977daee9e44cf52e15ee3
+    7ab9834567333b939458a5bfb5 \
+    --control-plane --certificate-key 824d9a0e173a810416b4bca7038fb33b616108c17abcbc5eaef8651f11e3d146
+
+</code></pre>
+<ul>
+<li>Execute the kubeadm join command for control plane on <code>master2</code></li>
+</ul>
+<p>Your output should look like:</p>
+<pre><code class="language-sh"> This node has joined the cluster and a new control plane instance was created:
+
+* Certificate signing request was sent to apiserver and approval was received.
+* The Kubelet was informed of the new secure connection details.
+* Control plane (master) label and taint were applied to the new node.
+* The Kubernetes control plane instances scaled up.
+* A new etcd member was added to the local/stacked etcd cluster.
+
+</code></pre>
+<p>Now that you have initialized both the masters - you can now work on
+bootstrapping the worker nodes.</p>
+<ul>
+<li>SSH into <strong>worker1</strong> and <strong>worker2</strong></li>
+<li>Switch to root user on both the machines: <code>sudo su</code></li>
+<li>Check the output given by the init command on <strong>master1</strong> to join worker node:</li>
+</ul>
+<pre><code class="language-sh">kubeadm join 192.168.0.167:6443 --token cnslau.kd5fjt96jeuzymzb \
+    --discovery-token-ca-cert-hash sha256:871ab3f050bc9790c977daee9e44cf52e15ee37ab9834567333b939458a5bfb5
+</code></pre>
+<ul>
+<li>
+<p>Execute the above command on both the nodes:</p>
+</li>
+<li>
+<p>Your output should look like:</p>
+</li>
+</ul>
+<pre><code class="language-sh">This node has joined the cluster:
+* Certificate signing request was sent to apiserver and a response was received.
+* The Kubelet was informed of the new secure connection details.
+
+</code></pre>
+<hr />
+<h2 id="configure-kubeconfig-on-loadbalancer-node">Configure kubeconfig on loadbalancer node</h2>
+<p>Now that you have configured the master and the worker nodes, its now time to
+configure Kubeconfig (<code>.kube</code>) on the loadbalancer node. It is completely up to
+you if you want to use the loadbalancer node to setup kubeconfig. kubeconfig can
+also be setup externally on a separate machine which has access to loadbalancer
+node. For the purpose of this demo you will use loadbalancer node to host
+kubeconfig and <code>kubectl</code>.</p>
+<ul>
+<li>SSH into <code>loadbalancer</code> node</li>
+<li>Switch to root user: <code>sudo su</code></li>
+<li>Create a directory: .kube at $HOME of root user</li>
+</ul>
+<pre><code class="language-sh">mkdir -p $HOME/.kube
+</code></pre>
+<ul>
+<li>SCP configuration file from any one <strong>master</strong> node to <strong>loadbalancer</strong> node</li>
+</ul>
+<pre><code class="language-sh">scp master1:/etc/kubernetes/admin.conf $HOME/.kube/config
+
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Important Note</p>
+<p>If you havent setup ssh connection between master node and loadbalancer, you
+can manually copy content of the file <code>/etc/kubernetes/admin.conf</code> from
+<code>master1</code> node and then paste it to <code>$HOME/.kube/config</code> file on the
+loadbalancer node. Ensure that the kubeconfig file path is
+<strong><code>$HOME/.kube/config</code></strong> on the loadbalancer node.</p>
+</div>
+<ul>
+<li>Provide appropriate ownership to the copied file</li>
+</ul>
+<pre><code class="language-sh">chown $(id -u):$(id -g) $HOME/.kube/config
+</code></pre>
+<hr />
+<h2 id="install-kubectl">Install <strong>kubectl</strong></h2>
+<ul>
+<li>Install kubectl binary
+• <strong>kubectl</strong>: the command line util to talk to your cluster.</li>
+</ul>
+<pre><code class="language-sh">snap install kubectl --classic
+</code></pre>
+<p>This outputs: <code>kubectl 1.22.2 from Canonical✓ installed</code></p>
+<ul>
+<li>Verify the cluster</li>
+</ul>
+<pre><code class="language-sh">kubectl get nodes
+
+NAME      STATUS        ROLES                  AGE     VERSION
+master1   NotReady      control-plane,master   21m     v1.16.2
+master2   NotReady      control-plane,master   15m     v1.16.2
+worker1   Ready         &lt;none&gt;                 9m17s   v1.16.2
+worker2   Ready         &lt;none&gt;                 9m25s   v1.16.2
+
+</code></pre>
+<hr />
+<h2 id="install-cni-network-plugin">Install CNI network plugin</h2>
+<h3 id="cni-overview">CNI overview</h3>
+<p>Managing a network where containers can interoperate efficiently is very
+important. Kubernetes has adopted the Container Network Interface(CNI)
+specification for managing network resources on a cluster. This relatively
+simple specification makes it easy for Kubernetes to interact with a wide range
+of CNI-based software solutions. Using this CNI plugin allows Kubernetes pods to
+have the same IP address inside the pod as they do on the VPC network. Make sure
+the configuration corresponds to the Pod CIDR specified in the <code>kubeadm</code>
+configuration file if applicable.</p>
+<p>You must deploy a CNI based Pod network add-on so that your Pods can communicate
+with each other. Cluster DNS (CoreDNS) will not start up before a network is
+installed. To verify you can run this command: <code>kubectl get po -n kube-system</code>:</p>
+<p>You should see the following output. You will see the two <code>coredns-*</code> pods in a
+pending state. It is the expected behavior. Once we install the network plugin,
+it will be in a Running state.</p>
+<p>Output Example:</p>
+<pre><code class="language-sh">root@loadbalancer:~$ kubectl get po -n kube-system
+ NAME                               READY  STATUS   RESTARTS  AGE
+coredns-558bd4d5db-5jktc             0/1   Pending   0        10m
+coredns-558bd4d5db-xdc5x             0/1   Pending   0        10m
+etcd-master1                         1/1   Running   0        11m
+kube-apiserver-master1               1/1   Running   0        11m
+kube-controller-manager-master1      1/1   Running   0        11m
+kube-proxy-5jfh5                     1/1   Running   0        10m
+kube-scheduler-master1               1/1   Running   0        11m
+</code></pre>
+<h3 id="supported-cni-options">Supported CNI options</h3>
+<p>To read more about the currently supported base CNI solutions for Kubernetes
+<a href="https://kubernetes.io/docs/concepts/cluster-administration/networking/">read here</a>
+and also <a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#pod-network">read this</a>.</p>
+<p>The below command can be run on the Loadbalancer node to install the CNI plugin:</p>
+<pre><code class="language-sh">kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml
+</code></pre>
+<p>As you had passed <code>--pod-network-cidr=10.244.0.0/16</code> with <code>kubeadm init</code> so this
+should work for <strong>Flannel</strong> CNI.</p>
+<div class="admonition tip">
+<p class="admonition-title">Using Other CNI Options</p>
+<p>For <strong>Calico</strong> CNI plugin to work correctly, you need to pass
+<code>--pod-network-cidr=192.168.0.0/16</code> with <code>kubeadm init</code> and then you can run:
+<code>kubectl apply -f https://docs.projectcalico.org/v3.8/manifests/calico.yaml</code></p>
+<hr />
+<p>For <strong>Weave Net</strong> CNI plugin to work correctly, you <strong>don't</strong> need to pass
+<code>--pod-network-cidr</code> with <code>kubeadm init</code> and then you can run:
+<code>kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl
+version | base64 | tr -d '\n')"</code></p>
+</div>
+<ul>
+<li>Dual Network:
+It is <strong>highly recommended</strong> to follow an internal/external network layout for your
+cluster, as showed in this diagram:
+<img alt="Dual Network Diagram" src="../../images/network-layout.png" /></li>
+</ul>
+<p>To enable this just give two different names to the internal and external interface,
+according to your distro of choiche naming scheme:</p>
+<pre><code class="language-sh">external_interface: eth0
+internal_interface: eth1
+</code></pre>
+<p>Also you can decide here what CIDR should your cluster use</p>
+<pre><code class="language-sh">cluster_cidr: 10.43.0.0/16
+service_cidr: 10.44.0.0/16
+</code></pre>
+<p>Once you successfully installed the <strong>Flannel</strong> CNI component to your cluster.
+You can now verify your HA cluster running:</p>
+<pre><code class="language-sh">kubectl get nodes
+
+NAME      STATUS   ROLES                    AGE   VERSION
+master1   Ready    control-plane,master     22m   v1.16.2
+master2   Ready    control-plane,master     17m   v1.16.2
+worker1   Ready    &lt;none&gt;                   10m   v1.16.2
+worker2   Ready    &lt;none&gt;                   10m   v1.16.2
+
+</code></pre>
+<hr />
+<h3 id="deploy-a-sample-nginx-application">Deploy A Sample Nginx Application</h3>
+<p>Now that we have all the components to make the cluster and applications work,
+let’s deploy a sample Nginx application and see if we can access it over a
+<a href="https://kubernetes.io/docs/concepts/services-networking/service/#nodeport">NodePort</a>
+that has port range of <em>30000-32767</em>.</p>
+<p>The below command can be run on:</p>
+<pre><code class="language-sh">kubectl run nginx --image=nginx --port=80
+kubectl expose pod nginx --port=80 --type=NodePort
+</code></pre>
+<p>To check which NodePort is opened and running the Nginx run:</p>
+<pre><code class="language-sh">kubectl get svc
+</code></pre>
+<p>The output will show:
+<img alt="Running Services" src="../../images/running_services.png" /></p>
+<p>Once the deployment is up, you should be able to access the Nginx home page on
+the allocated NodePort from either of the worker nodes' Floating IP.</p>
+<p>To check which worker node is serving <code>nginx</code>, you can check <strong>NODE</strong> column running the following command:</p>
+<pre><code class="language-sh">kubectl get pods --all-namespaces --output wide
+</code></pre>
+<p><strong>OR,</strong></p>
+<pre><code class="language-sh">kubectl get pods -A -o wide
+</code></pre>
+<p>This will shows like below:</p>
+<p><img alt="Nginx Pod and Worker" src="../../images/nginx-pod-worker-node.png" /></p>
+<p>Go to browser, visit <code>http://&lt;Worker-Floating-IP&gt;:&lt;NodePort&gt;</code>
+i.e. <a href="http://128.31.25.246:32713">http://128.31.25.246:32713</a> to check the nginx default page.
+Here <code>Worker_Floating-IP</code> corresponds to the Floating IP of the <code>nginx</code> pod
+running worker node i.e. <code>worker2</code>.</p>
+<p>For your example,</p>
+<p><img alt="nginx default page" src="../../images/nginx_page.png" /></p>
+<hr />
+<h3 id="deploy-a-k8s-dashboard">Deploy A K8s Dashboard</h3>
+<p>You will going to setup <a href="https://github.com/skooner-k8s/skooner">K8dash/Skooner</a>
+to view a dashboard that shows all your K8s cluster components.</p>
+<ul>
+<li>SSH into <code>loadbalancer</code> node</li>
+<li>Switch to root user: <code>sudo su</code></li>
+<li>Apply available deployment by running the following command:</li>
+</ul>
+<pre><code class="language-sh">kubectl apply -f https://raw.githubusercontent.com/skooner-k8s/skooner/master/kubernetes-skooner-nodeport.yaml
+</code></pre>
+<p>This will map Skooner port <strong>4654</strong> to a randomly selected port on the running node.
+The assigned NodePort can be found running:</p>
+<pre><code class="language-sh">kubectl get svc --namespace=kube-system
+</code></pre>
+<p><strong>OR,</strong></p>
+<pre><code class="language-sh">kubectl get po,svc -n kube-system
+</code></pre>
+<p><img alt="Skooner Service Port" src="../../images/skooner_port.png" /></p>
+<p>To check which worker node is serving <code>skooner-*</code>, you can check <strong>NODE</strong> column
+running the following command:</p>
+<pre><code class="language-sh">kubectl get pods --all-namespaces --output wide
+</code></pre>
+<p><strong>OR,</strong></p>
+<pre><code class="language-sh">kubectl get pods -A -o wide
+</code></pre>
+<p>This will shows like below:</p>
+<p><img alt="Skooner Pod and Worker" src="../../images/skooner-pod-worker-node.png" /></p>
+<p>Go to browser, visit <code>http://&lt;Worker-Floating-IP&gt;:&lt;NodePort&gt;</code> i.e.
+<a href="http://128.31.25.246:30495">http://128.31.25.246:30495</a> to check the skooner dashboard page.
+Here <code>Worker_Floating-IP</code> corresponds to the Floating IP of the <code>skooner-*</code> pod
+running worker node i.e. <code>worker2</code>.</p>
+<p><img alt="Skooner Dashboard" src="../../images/skooner-dashboard.png" /></p>
+<p>Setup the <strong>Service Account Token</strong> to access the Skooner Dashboard:</p>
+<p>The first (and easiest) option is to create a dedicated service account. Run the
+following commands:</p>
+<ul>
+<li>Create the service account in the current namespace (we assume default)</li>
+</ul>
+<p><code>kubectl create serviceaccount skooner-sa</code></p>
+<ul>
+<li>Give that service account root on the cluster</li>
+</ul>
+<p><code>kubectl create clusterrolebinding skooner-sa --clusterrole=cluster-admin --serviceaccount=default:skooner-sa</code></p>
+<ul>
+<li>Find the secret that was created to hold the token for the SA</li>
+</ul>
+<p><code>kubectl get secrets</code></p>
+<ul>
+<li>Show the contents of the secret to extract the token</li>
+</ul>
+<p><code>kubectl describe secret skooner-sa-token-xxxxx</code></p>
+<p>Copy the token value from the secret and enter it into the login screen to access
+the dashboard.</p>
+<h3 id="watch-demo-video">Watch Demo Video</h3>
+<p>Here’s a <a href="https://drive.google.com/file/d/1mALftMHEUkjQ7lK6oJ6S_tiY59Q0JASY/view?usp=sharing">recorded demo video</a>
+on how to setup HA K8s cluster using <code>kubeadm</code>.</p>
+<hr />
+<h3 id="clean-up">Clean Up</h3>
+<ul>
+<li>To view the Cluster info:</li>
+</ul>
+<pre><code class="language-sh">kubectl cluster-info
+</code></pre>
+<ul>
+<li>To delete your local references to the cluster:</li>
+</ul>
+<pre><code class="language-sh">kubectl config delete-cluster
+</code></pre>
+<h2 id="how-to-remove-the-node">How to Remove the node?</h2>
+<p>Talking to the control-plane node with the appropriate credentials, run:</p>
+<pre><code class="language-sh">kubectl drain &lt;node name&gt; --delete-emptydir-data --force --ignore-daemonsets
+</code></pre>
+<ul>
+<li>Before removing the node, reset the state installed by kubeadm:</li>
+</ul>
+<pre><code class="language-sh">kubeadm reset
+</code></pre>
+<p>The reset process does not reset or clean up iptables rules or IPVS tables. If
+you wish to reset iptables, you must do so manually:</p>
+<pre><code class="language-sh">iptables -F &amp;&amp; iptables -t nat -F &amp;&amp; iptables -t mangle -F &amp;&amp; iptables -X
+</code></pre>
+<p>If you want to reset the IPVS tables, you must run the following command:</p>
+<pre><code class="language-sh">ipvsadm -C
+</code></pre>
+<ul>
+<li>Now remove the node:</li>
+</ul>
+<pre><code class="language-sh">kubectl delete node &lt;node name&gt;
+</code></pre>
+<p>If you wish to start over, run <code>kubeadm init</code> or <code>kubeadm join</code> with the
+appropriate arguments.</p>
+<hr />
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+  <footer class="md-footer">
+    <aside class="footer-left">
+        <a href="http://www.bu.edu/tech/services/research/" title="Boston University" target="_blank">
+          <img alt="Boston University Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/boston-university-logo.png"/>
+        </a>
+
+    </aside>
+
+    <aside class="footer-right">
+        <a href="https://www.mghpcc.org/" title="MGHPCC" target="_blank">
+          <img alt="MGHPCC Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/MGHPCC_logo.png"/>
+        </a>
+    </aside>
+
+    <aside class="footer-center">
+        <a href="http://rc.fas.harvard.edu" title="Harvard University" target="_blank">
+          <img alt="Harvard University Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/harvard-university_logo.png"/>
+        </a>
+    </aside>
+  </footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.409db549.min.js", "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.56a63758.min.js"></script>
+      
+        <script src="../../../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1815 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NERC Documentation">
+      
+      
+      
+        <meta name="author" content="NERC">
+      
+      
+        <link rel="canonical" href="https://nerc-project.github.io/nerc-docs/openstack/advanced-openstack-topics/setting-up-your-own-images/how-to-build-windows-image/">
+      
+      <link rel="icon" href="../../../../assets/images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.2.4, mkdocs-material-7.2.5">
+    
+    
+  <title>New England Research Cloud(NERC)</title>
+
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.be71726b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.3f5d1f46.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    <script>function __prefix(e){return new URL("../../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+      <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#virtual-machine-image-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner md-announce">
+          <div class="md-banner__inner md-announce__inner md-grid md-typeset">
+            
+<div class="parent">
+  <!--<div class="maintain">
+    Upcoming system upgrade and maintenance on Wednesday April 6, 2022.
+    <a style="color: #0066cc;" href="https://nerc.mghpcc.org/events/nerc-system-upgrade-and-maintenance-april-6-2022/" target="_blank">[DETAILS]</a>
+  </div>-->
+  <div class="child">
+    <iframe src="https://nerc.instatus.com/embed-status/light-sm" width="230" height="52" frameBorder="0" scrolling="no" style="border: none;" ></iframe></div>
+</div>
+
+          </div>
+        </aside>
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="NERC Documentation" class="md-header__button md-logo" aria-label="NERC Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NERC Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Setting up custom images
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m10-3a5 5 0 0 1 5 5 5 5 0 0 1-5 5H7a5 5 0 0 1-5-5 5 5 0 0 1 5-5h10M7 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3h10a3 3 0 0 0 3-3 3 3 0 0 0-3-3H7z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/nerc-project/nerc-docs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nerc-project/nerc-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="NERC Documentation" class="md-nav__button md-logo" aria-label="NERC Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    NERC Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/nerc-project/nerc-docs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nerc-project/nerc-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../about/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      <label class="md-nav__link" for="__nav_3">
+        Getting Started
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Getting Started
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/user-onboarding-on-NERC/" class="md-nav__link">
+        User Onboarding Process
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/create-a-user-portal-account/" class="md-nav__link">
+        How to Create a User Account
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/get-an-allocation/" class="md-nav__link">
+        How to Get An Allocation
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      <label class="md-nav__link" for="__nav_4">
+        OpenStack
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenStack" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          OpenStack
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        OpenStack
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      <label class="md-nav__link" for="__nav_4_2">
+        Logging In
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Logging In" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Logging In
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../logging-in/access-the-openstack-dashboard/" class="md-nav__link">
+        Access the OpenStack Dashboard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../logging-in/dashboard-overview/" class="md-nav__link">
+        Dashboard Overview
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" >
+      
+      <label class="md-nav__link" for="__nav_4_3">
+        Access and Security
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Access and Security" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          Access and Security
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../access-and-security/security-groups/" class="md-nav__link">
+        Security Groups
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../access-and-security/create-a-key-pair/" class="md-nav__link">
+        Create a Key Pair
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" >
+      
+      <label class="md-nav__link" for="__nav_4_4">
+        Create &amp; Connect to the VM
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Create &amp; Connect to the VM" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          Create &amp; Connect to the VM
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/launch-a-VM/" class="md-nav__link">
+        Launch a VM
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/flavors/" class="md-nav__link">
+        Available NOVA Flavors
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/assign-a-floating-IP/" class="md-nav__link">
+        Assign a Floating IP
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4_4" type="checkbox" id="__nav_4_4_4" >
+      
+      <label class="md-nav__link" for="__nav_4_4_4">
+        Connect to the VM
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Connect to the VM" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          Connect to the VM
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/ssh-to-cloud-VM/" class="md-nav__link">
+        SSH to Cloud VM
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/bastion-host-based-ssh/" class="md-nav__link">
+        Bastion Host based SSH
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4_4_3" type="checkbox" id="__nav_4_4_4_3" >
+      
+      <label class="md-nav__link" for="__nav_4_4_4_3">
+        OpenVPN
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenVPN" data-md-level="4">
+        <label class="md-nav__title" for="__nav_4_4_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          OpenVPN
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/openvpn/" class="md-nav__link">
+        About OpenVPN
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/openvpn/openvpn_gui_for_windows/" class="md-nav__link">
+        OpenVPN GUI for Windows
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/openvpn/tunnelblick_for_macos/" class="md-nav__link">
+        Tunnelblick for MacOS
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/wireguard/" class="md-nav__link">
+        WireGuard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/sshuttle/" class="md-nav__link">
+        sshuttle
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_5" type="checkbox" id="__nav_4_5" >
+      
+      <label class="md-nav__link" for="__nav_4_5">
+        Migrating from MOC to NERC
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Migrating from MOC to NERC" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_5">
+          <span class="md-nav__icon md-icon"></span>
+          Migrating from MOC to NERC
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../migration-from-MOC-to-NERC/Step1/" class="md-nav__link">
+        Step 1 Gathering MOC information
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../migration-from-MOC-to-NERC/Step2/" class="md-nav__link">
+        Step 2 Creating NERC Containers to Migrate MOC Volumes into
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../migration-from-MOC-to-NERC/Step3/" class="md-nav__link">
+        Step 3 Moving Volumes from MOC to NERC
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6" type="checkbox" id="__nav_4_6" checked>
+      
+      <label class="md-nav__link" for="__nav_4_6">
+        Advanced Topics
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Advanced Topics" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_6">
+          <span class="md-nav__icon md-icon"></span>
+          Advanced Topics
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_1" type="checkbox" id="__nav_4_6_1" >
+      
+      <label class="md-nav__link" for="__nav_4_6_1">
+        Setting Up Own Network
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Setting Up Own Network" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_1">
+          <span class="md-nav__icon md-icon"></span>
+          Setting Up Own Network
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setting-up-a-network/set-up-a-private-network/" class="md-nav__link">
+        Set up a Private Network
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setting-up-a-network/create-a-router/" class="md-nav__link">
+        Create a Router
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_2" type="checkbox" id="__nav_4_6_2" >
+      
+      <label class="md-nav__link" for="__nav_4_6_2">
+        OpenStack CLI
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenStack CLI" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_2">
+          <span class="md-nav__icon md-icon"></span>
+          OpenStack CLI
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../openstack-cli/openstack-CLI/" class="md-nav__link">
+        OpenStack CLI
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../openstack-cli/launch-a-VM-using-openstack-CLI/" class="md-nav__link">
+        Launch a VM using OpenStack CLI
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_3" type="checkbox" id="__nav_4_6_3" >
+      
+      <label class="md-nav__link" for="__nav_4_6_3">
+        Persistent Storage
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Persistent Storage" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_3">
+          <span class="md-nav__icon md-icon"></span>
+          Persistent Storage
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../persistent-storage/volumes/" class="md-nav__link">
+        Block Storage/ Volumes/ Cinder
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../persistent-storage/object-storage/" class="md-nav__link">
+        Object Storage/ Swift
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_4" type="checkbox" id="__nav_4_6_4" >
+      
+      <label class="md-nav__link" for="__nav_4_6_4">
+        Backup your instance and volume
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Backup your instance and volume" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_4">
+          <span class="md-nav__icon md-icon"></span>
+          Backup your instance and volume
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/backup-with-snapshots/" class="md-nav__link">
+        Backup with snapshots
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_5" type="checkbox" id="__nav_4_6_5" >
+      
+      <label class="md-nav__link" for="__nav_4_6_5">
+        Terraform
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Terraform" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_5">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../terraform/terraform-on-NERC/" class="md-nav__link">
+        Terraform on NERC
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../python-sdk/python-SDK/" class="md-nav__link">
+        Python SDK
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Setting up custom images
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Setting up custom images
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#existing-microsoft-windows-image" class="md-nav__link">
+    Existing Microsoft Windows Image
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-build-and-upload-your-custom-microsoft-windows-image" class="md-nav__link">
+    How to Build and Upload your custom Microsoft Windows Image
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      <label class="md-nav__link" for="__nav_5">
+        Other Tools On NERC
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Other Tools On NERC" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Other Tools On NERC
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/" class="md-nav__link">
+        Other Useful Tools
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2" type="checkbox" id="__nav_5_2" >
+      
+      <label class="md-nav__link" for="__nav_5_2">
+        Kubernetes
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Kubernetes" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_2">
+          <span class="md-nav__icon md-icon"></span>
+          Kubernetes
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/kubernetes/" class="md-nav__link">
+        Kubernetes Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/comparisons/" class="md-nav__link">
+        K8s Flavors Comparision
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_3" type="checkbox" id="__nav_5_2_3" >
+      
+      <label class="md-nav__link" for="__nav_5_2_3">
+        Development environment
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Development environment" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_3">
+          <span class="md-nav__icon md-icon"></span>
+          Development environment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/minikube/" class="md-nav__link">
+        Minikube
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/minishift/" class="md-nav__link">
+        Minishift
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/kind/" class="md-nav__link">
+        Kind
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/microk8s/" class="md-nav__link">
+        MicroK8s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_3_5" type="checkbox" id="__nav_5_2_3_5" >
+      
+      <label class="md-nav__link" for="__nav_5_2_3_5">
+        K3s
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="K3s" data-md-level="4">
+        <label class="md-nav__title" for="__nav_5_2_3_5">
+          <span class="md-nav__icon md-icon"></span>
+          K3s
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k3s/k3s/" class="md-nav__link">
+        K3s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k3s/k3s-ha-cluster/" class="md-nav__link">
+        K3s with High Availibility(HA) setup
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k3s/k3s-using-k3sup/" class="md-nav__link">
+        Multi-master HA K3s cluster using k3sup
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k3s/k3s-using-k3d/" class="md-nav__link">
+        Single-Node K3s Cluster using k3d
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k3s/k3s-ha-cluster-using-k3d/" class="md-nav__link">
+        Multi-master K3s cluster setup using k3d
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k0s/" class="md-nav__link">
+        k0s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/crc/" class="md-nav__link">
+        CRC - Red Hat Code Ready Containers
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_4" type="checkbox" id="__nav_5_2_4" >
+      
+      <label class="md-nav__link" for="__nav_5_2_4">
+        Production environment
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Production environment" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_4">
+          <span class="md-nav__icon md-icon"></span>
+          Production environment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_4_1" type="checkbox" id="__nav_5_2_4_1" >
+      
+      <label class="md-nav__link" for="__nav_5_2_4_1">
+        Kubeadm
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Kubeadm" data-md-level="4">
+        <label class="md-nav__title" for="__nav_5_2_4_1">
+          <span class="md-nav__icon md-icon"></span>
+          Kubeadm
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/kubeadm/single-master-clusters-with-kubeadm/" class="md-nav__link">
+        Bootstrapping cluster with kubeadm
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/kubeadm/HA-clusters-with-kubeadm/" class="md-nav__link">
+        Creating a HA cluster with kubeadm
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/kubespray/" class="md-nav__link">
+        Kubespray
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#existing-microsoft-windows-image" class="md-nav__link">
+    Existing Microsoft Windows Image
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-build-and-upload-your-custom-microsoft-windows-image" class="md-nav__link">
+    How to Build and Upload your custom Microsoft Windows Image
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/nerc-project/nerc-docs/edit/master/docs/openstack/advanced-openstack-topics/setting-up-your-own-images/how-to-build-windows-image.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="virtual-machine-image-guide">Virtual Machine Image Guide</h1>
+<p>An OpenStack Compute cloud needs to have virtual machine images in order to
+launch an instance. A virtual machine image is a single file which contains a
+virtual disk that has a bootable operating system installed on it.</p>
+<div class="admonition warning">
+<p class="admonition-title">Very Important</p>
+<p>The provided Windows Server 2022 R2 image is for evaluation only. This evaluation
+edition expires in <strong>180 days</strong>. This is intended to evaluate if the product
+is right for you. This is on <em>user discretion</em> to update, extend, and handle
+licensing issues for future usages.</p>
+</div>
+<h2 id="existing-microsoft-windows-image">Existing Microsoft Windows Image</h2>
+<p>Cloudbase Solutions provides <a href="https://cloudbase.it/windows-cloud-images/">Microsoft Windows Server 2022 R2 Standard
+Evaluation for OpenStack</a>. This
+includes the required support for hypervisor-specific drivers (Hyper-V / KVM).
+Also integrated are the guest initialization tools (Cloudbase-Init), security
+updates, proper performance, and security configurations as well as the final Sysprep.</p>
+<h2 id="how-to-build-and-upload-your-custom-microsoft-windows-image">How to Build and Upload your custom Microsoft Windows Image</h2>
+<div class="admonition note">
+<p class="admonition-title">Overall Process</p>
+<p>To create a new image, you will need the installation CD or DVD ISO file for
+the guest operating system. You will also need access to a virtualization tool.
+You can use KVM hypervisor for this. Or, if you have a GUI desktop virtualization
+tool (such as, <a href="https://virt-manager.org/">virt-manager</a>, VMware Fusion or
+VirtualBox), you can use that instead. Convert the file to <strong>QCOW2</strong> (KVM, Xen)
+once you are done.</p>
+</div>
+<p>You can customize and build the new image manually on your own system and then
+upload the image to the NERC's OpenStack Compute cloud. Please follow the following
+steps which describes how to obtain, create, and modify virtual machine images that
+are compatible with the NERC's OpenStack.</p>
+<ol>
+<li>
+<p>Follow these steps to prepare the installation:</p>
+<p>a. Download a Windows Server 2022 installation ISO file. Evaluation images are
+available on the <a href="https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2022">Microsoft website</a>
+(<strong>registration required</strong>).</p>
+<p>b. Download the signed <strong>VirtIO drivers</strong> ISO file from the <a href="https://docs.fedoraproject.org/en-US/quick-docs/creating-windows-virtual-machines-using-virtio-drivers/index.html">Fedora website</a>.</p>
+<p>c. Install <a href="https://virt-manager.org/download/">Virtual Machine Manager</a> on your
+local Windows 10 machine using WSL:</p>
+<ul>
+<li>
+<p><strong>Enable WSL on your local Windows 10 subsystem for Linux:</strong>
+    The steps given here are straightforward, however, before following them
+    make sure on your Windows 10, you have WSL enabled and have at least Ubuntu
+    20.04 or above LTS version running over it. If you don’t know how to do
+    that then see our tutorial on <a href="https://www.how2shout.com/how-to/enable-windows-subsystem-linux-feature.html">how to enable WSL and install Ubuntu over
+    it</a>.</p>
+</li>
+<li>
+<p><strong>Download and install MobaXterm:</strong>
+    <strong>MobaXterm</strong> is a free application that can be downloaded using <a href="https://mobaxterm.mobatek.net/download-home-edition.html">this link</a>.
+    After downloading, install it like any other normal Windows software.</p>
+</li>
+<li>
+<p><strong>Open MobaXterm and run WSL Linux:</strong>
+    As you open this advanced terminal for Windows 10, WSL installed Ubuntu
+    app will show on the left side panel of it. Double click on that to start
+    the WSL session.</p>
+<p><img alt="MobaXterm WSL Ubuntu-20.04 LTS" src="../images/a.mobaxterm_ubuntu_WSL.png" /></p>
+</li>
+<li>
+<p><strong>Install Virt-Manager:</strong></p>
+<pre><code>sudo apt update
+sudo apt install virt-manager
+</code></pre>
+</li>
+<li>
+<p><strong>Run Virtual Machine Manager:</strong>
+    Start the Virtual Machine Manager running this command on the opened
+    terminal: <code>virt-manager</code> as shown below:</p>
+<p><img alt="MobaXterm start Virt-Manager" src="../images/b.mobaxterm_init_virt-manager.png" /></p>
+<p>This will open Virt-Manager as following:</p>
+<p><img alt="Virt-Manager interface" src="../images/0.virtual-manager.png" /></p>
+</li>
+<li>
+<p><strong>Connect QEMU/KVM user session on Virt-Manager:</strong></p>
+<p><img alt="Virt-Manager Add Connection" src="../images/0.0.add_virtual_connection.png" /></p>
+<p><img alt="Virt-Manager QEMU/KVM user session" src="../images/0.1.select_qemu_kvm_user_session.png" /></p>
+<p><img alt="Virt-Manager Connect" src="../images/0.2.qemu_kvm_user_session.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Create a virtual machine with the storage set to a <strong>15 GB</strong> <em>qcow2</em> disk
+image using Virtual Machine Manager.</p>
+<p><img alt="Virt-Manager New Virtual Machine" src="../images/1.new_virtual_machine.png" /></p>
+<p><img alt="Virt-Manager Local install media" src="../images/2.select_local_ISO_image.png" /></p>
+<p><img alt="Virt-Manager Browse Win ISO" src="../images/3.0.Choose_ISO.png" /></p>
+<p><img alt="Virt-Manager Browse Local" src="../images/3.1.browse_local.png" /></p>
+<p><img alt="Virt-Manager Select the ISO file" src="../images/3.3.open_local_iso_file.png" /></p>
+<p><img alt="Virt-Manager Selected ISO" src="../images/3.4.select_iso.png" /></p>
+<p><img alt="Virt-Manager default Memory and CPU" src="../images/4.default_mem_cpu.png" /></p>
+<p>Please set <strong>15 GB disk image</strong> size as shown below:</p>
+<p><img alt="Virt-Manager disk image size" src="../images/5.set_15_GB_disk_size.png" /></p>
+<p>Set the virtual machine name and also make sure <strong>"Customize configuration before
+install"</strong> is selected as shown below:</p>
+<p><img alt="Virt-Manager Virtual Machine Name" src="../images/6.set_name.png" /></p>
+</li>
+<li>
+<p>Customize the Virtual machine:</p>
+<p><img alt="Virt-Manager Customize Image" src="../images/7.0.customize_iso.png" /></p>
+<p>Enable the <strong>VirtIO</strong> driver. By default, the Windows installer does not
+detect the disk.</p>
+<p><img alt="Virt-Manager Disk with VirtIO driver" src="../images/7.1.customize_sata_disk_virtio.png" /></p>
+<p>Add a <strong>New Hardware</strong>  &gt; select <strong>CDROM device</strong> and attach to downloaded
+<strong>virtio-win-* ISO</strong> file:</p>
+<p><img alt="Virt-Manager Add Hardware" src="../images/7.4.add_virtio_iso_hardware.png" /></p>
+<p><img alt="Virt-Manager Add CDROM with virtio ISO" src="../images/7.5.add_virtio_iso_cdrom.png" /></p>
+<p><img alt="Virt-Manager Browse virtio ISO" src="../images/7.6.browse_virtio_iso.png" /></p>
+<p><img alt="Virt-Manager Select virtio ISO" src="../images/7.7.select_virtion_iso.png" /></p>
+<p>Make sure the NIC is using the <strong>virtio</strong> Device model as show below:</p>
+<p><img alt="Virt-Manager Modify  NIC" src="../images/7.2.customize_nic_virtio.png" /></p>
+<p><img alt="Virt-Manager Apply Change on NIC" src="../images/7.3.customize_nic_virtio_apply.png" /></p>
+<p>Make sure to set proper order of <strong>Boot Options</strong> as shown below so that
+CDROM with Windows ISO is set on the first and Apply the order change.
+After this please begin windows installation clicking on <strong>"Begin Installation"</strong>
+button.</p>
+<p><img alt="Windows Boot Options" src="../images/7.8.boot_option_win_cdrom_first.png" /></p>
+</li>
+<li>
+<p>Click "Apply" button and continue with the Windows installation.</p>
+<p>When prompted you can choose "Windows Server 2022 Standard Evaluation
+(Desktop Experinece)" option as shown below:</p>
+<p><img alt="Windows Desktop Installation" src="../images/7.windows_installation_desktop.png" /></p>
+<p><img alt="Windows Custom Installation" src="../images/8.custom_setup.png" /></p>
+<p>Load VirtIO SCSI drivers and network drivers by choosing an installation
+target when prompted. Click <strong>Load driver</strong> and browse the file system.</p>
+<p><img alt="Windows Custom Load Driver" src="../images/9.load_driver.png" /></p>
+<p><img alt="Browse Local Attached Drives" src="../images/10.browse_driver.png" /></p>
+<p><img alt="Select VirtIO CDROM" src="../images/11.browse_CDRom_virtio_iso.png" /></p>
+<p>Select the <code>E:\virtio-win-*\viostor\2k22\amd64</code> folder. When converting an
+image file with Windows, ensure the virtio driver is installed. Otherwise,
+you will get a blue screen when launching the image due to lack of the virtio
+driver.</p>
+<p><img alt="Select Appropriate Win Version viostor driver" src="../images/12.select_viostor_driver.png" /></p>
+<p>The Windows installer displays a list of drivers to install. Select the
+VirtIO SCSI drivers.</p>
+<p><img alt="Windows viostor driver Installation" src="../images/13.install_viostor_driver.png" /></p>
+<p>Click <strong>Load driver</strong> again and browse the file system, and select the
+<code>E:\NetKVM\2k22\amd64</code> folder.</p>
+<p><img alt="Select Appropriate Win Version NetKVM driver" src="../images/14.select_netkvm_driver.png" /></p>
+<p>Select the network drivers, and continue the installation.</p>
+<p><img alt="Windows NetKVM driver Installation" src="../images/15.install_netkvm_driver.png" /></p>
+<p><img alt="Windows Ready for Installation" src="../images/16.install_win.png" /></p>
+<p><img alt="Windows Continue Installation" src="../images/17.wait_installation_finish.png" /></p>
+</li>
+<li>
+<p>Once the installation is completed, the virtual machine (VM) restarts.</p>
+<p>Define a password for the <strong>Adminstrator</strong> when prompted and click on
+"Finish" button:</p>
+<p><img alt="Windows Administrator Login" src="../images/finalize_win_installtion_with_user.png" /></p>
+<p>Send the <strong>"Ctrl+Alt+Delete"</strong> key using <strong>Send Key</strong> Menu, this will
+unlock the windows and then prompt login for the Administrator - please login
+using the password you set on previous step:</p>
+<p><img alt="Windows Send Key" src="../images/send_ctrl_alt_delete_key.png" /></p>
+<p><img alt="Administrator Login" src="../images/login_administrator.png" /></p>
+<p><img alt="Administrator Profile Finalize" src="../images/setup_admininstrator_profile.png" /></p>
+<p><img alt="Windows Installation Successful" src="../images/windows-successful-login.png" /></p>
+</li>
+<li>
+<p>Go to device manager and install all unrecognized devices.</p>
+<p><img alt="Device Manager View" src="../images/device-manager-update-drivers.png" /></p>
+<p><img alt="Device Manager Update Driver" src="../images/update_driver.png" /></p>
+<p><img alt="Device Manager Browse Driver" src="../images/browse_driver.png" /></p>
+<p><img alt="Browse To Attached vitio-win CDROM" src="../images/browse_driver_CDROM.png" /></p>
+<p><img alt="Select Attached vitio-win CDROM" src="../images/select_attached_driver.png" /></p>
+<p><img alt="Successfully Installed Driver" src="../images/installed_driver.png" /></p>
+<p>Similarly as shown above repeat and install all missing drivers.</p>
+</li>
+<li>
+<p>Explicitly <strong>enable</strong> Remote Desktop Protocol (RDP) login and <strong>uncheck</strong>
+"Require computers to use Network Level Authentication to connect" option.</p>
+<p><img alt="Enable RDP" src="../images/rdp-enable.png" /></p>
+<p><img alt="Disable Network Level Authentication" src="../images/rdp-network-level-auth-not-required.png" /></p>
+</li>
+<li>
+<p>Delete the recovery parition which will allow expanding the Image as required
+running the following commands on <strong>Command Prompt (Run as Adminstrator)</strong>:</p>
+<pre><code>diskpart
+select disk 0
+list partition
+select partition 3
+delete partition override
+list partition
+</code></pre>
+<p><img alt="Disk Partition 3 Delete using CMD" src="../images/disk_partition_manager_delete_partition_3.png" /></p>
+<p>and then extend <code>C:</code> drive to take up the remaining space using <strong>"Disk Management"</strong>.</p>
+<p><img alt="C Drive Extended using Disk Management" src="../images/extend_C_drive_using_disk_manager.png" /></p>
+<p><img alt="C Drive Extended to Take all Unallocated Space" src="../images/c_drive_extended_to_take_all_unallocated_space.png" /></p>
+<p><img alt="C Drive on DIsk Management" src="../images/new_c_drive.png" /></p>
+</li>
+<li>
+<p>Install any new Windows updates. <strong>(Optional)</strong></p>
+</li>
+<li>
+<p>Download and install stable version of <strong>cloudbase-init</strong> (A Windows project
+providing guest initialization features, similar to cloud-init) by browsing the
+<a href="https://cloudbase.it/cloudbase-init/#download">Download Page</a> on the web browser
+on virtual machine running Windows, you can escape registering and just click on
+<strong>"No. just show me the downloads"</strong> to navigate to the download page as shown below:</p>
+<p><img alt="Download Cloudbase-init" src="../images/install_cloudbase-init.png" /></p>
+<p>During Installation, set <em>Serial port for logging</em> to <strong>COM1</strong> as shown below:</p>
+<p><img alt="Download Cloudbase-init setup for Admin" src="../images/coludbase-init-serial-port-com1.png" /></p>
+<p>When the installation is done, in the <em>Complete the Cloudbase-Init Setup Wizard</em>
+window, select the <strong>Run Sysprep</strong> and <strong>Shutdown</strong> check boxes and click "Finish"
+as shown below:</p>
+<p><img alt="Cloudbase-init Final Setup Options" src="../images/cloudinit-final-setup.png" /></p>
+<p>Wait for the machine shutdown.</p>
+<p><img alt="Sysprep Setup in Progress" src="../images/sysprep_in_progress.png" /></p>
+</li>
+<li>
+<p>The Sysprep will generate <strong>QCOW2</strong> image i.e. <code>win2k22.qcow2</code> on <code>/home/&lt;YourUserName&gt;/.local/share/libvirt/images/</code></p>
+<p><img alt="Windows QCOW2 Image" src="../images/download_icow2_win2022_image.png" /></p>
+</li>
+<li>
+<p>You can copy/download this windows image to the folder where you configured
+your OpenStack CLI as described <a href="../../openstack-cli/openstack-CLI/">Here</a> and
+upload to the NERC's OpenStack running the following OpenStack Image API command:</p>
+<p><code>$ openstack image create --disk-format qcow2 --file win2k22.qcow2 MS-Windows-2022</code></p>
+<p>You can verify the uploaded image is available by running:</p>
+<p><code>$ openstack image list</code></p>
+<pre><code>+--------------------------------------+---------------------+--------+
+| ID                                   | Name                | Status |
++--------------------------------------+---------------------+--------+
+| 7da9f5d4-4836-4bv8-bc5e-xc07ac6d8171 | MS-Windows-2022     | active |
+| ...                                  | ...                 | ...    |
++--------------------------------------+---------------------+--------+
+</code></pre>
+</li>
+<li>
+<p>Login to the <a href="https://stack.nerc.mghpcc.org/">NERC's OpenStack</a> and verify
+    the uploaded <strong>MS-Windows-2022</strong> is there also available on the NERC's OpenStack
+    Images List for your project as shown below:</p>
+<p><img alt="MS-Windows-2022 OpenStack Image" src="../images/stack_images_windows.png" /></p>
+<p>Create a <strong>Volume</strong> using that <em>Windows Image</em>:</p>
+<p><img alt="MS-Winodws-2022 Image to Volume Create" src="../images/stack_image_to_volume.png" /></p>
+<p><img alt="Create Volume" src="../images/create_volume.png" /></p>
+<p>Once successfully Volume is created, we can use the Volume to launch an instance
+as shown below:</p>
+<p><img alt="Launch Instance from Volume" src="../images/launch_instance_from_volume.png" /></p>
+<p>Add other information and setup a Security Group that allows RDP as shown below:</p>
+<p><img alt="Launch Instance Security Group for RDP" src="../images/security_group_for_rdp.png" /></p>
+<p><img alt="Running Windows Instance" src="../images/win2k22_instance_running.png" /></p>
+<p><img alt="Associate Floating IP" src="../images/win_instance_add_floating_ip.png" /></p>
+<p>Click on detail view of the Instance and then click on Console tab menu
+and click on <strong>"Send CtrlAltDel"</strong> button located on the top right side of
+the console as shown below:</p>
+<p><img alt="View Console of Instance" src="../images/console_win_instance.png" /></p>
+<p><img alt="Administrator Sign in Prompt" src="../images/administrator_singin_prompt.png" /></p>
+<p><img alt="Administrator Prompted to Change Password" src="../images/ok_to_change_password_administrator.png" /></p>
+<p><img alt="Set Administrator Password" src="../images/new_password_administrator.png" /></p>
+<p><img alt="Proceed Changed Administrator Password" src="../images/proceed_change_password_administrator.png" /></p>
+<p><img alt="Administrator Password Changed Successful" src="../images/password_changed_success.png" /></p>
+</li>
+<li>
+<p>Remote Desktop login should work with the FLoating IP associated with the instance:</p>
+<p><img alt="Search Remote Desktop Protocol locally" src="../images/RDP_on_local_machine.png" /></p>
+<p><img alt="Connect to Remote Instance using Floating IP" src="../images/remote_connection_floating_ip.png" /></p>
+<p><img alt="Prompted Administrator Login" src="../images/prompted_administrator_login.png" /></p>
+<p><img alt="Prompted RDP connection" src="../images/prompted_rdp_connection.png" /></p>
+<p><img alt="Successfully Remote Connected Instance" src="../images/remote_connected_instance.png" /></p>
+</li>
+</ol>
+<hr />
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+  <footer class="md-footer">
+    <aside class="footer-left">
+        <a href="http://www.bu.edu/tech/services/research/" title="Boston University" target="_blank">
+          <img alt="Boston University Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/boston-university-logo.png"/>
+        </a>
+
+    </aside>
+
+    <aside class="footer-right">
+        <a href="https://www.mghpcc.org/" title="MGHPCC" target="_blank">
+          <img alt="MGHPCC Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/MGHPCC_logo.png"/>
+        </a>
+    </aside>
+
+    <aside class="footer-center">
+        <a href="http://rc.fas.harvard.edu" title="Harvard University" target="_blank">
+          <img alt="Harvard University Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/harvard-university_logo.png"/>
+        </a>
+    </aside>
+  </footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.409db549.min.js", "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.56a63758.min.js"></script>
+      
+        <script src="../../../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

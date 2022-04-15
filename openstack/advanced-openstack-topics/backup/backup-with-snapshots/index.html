@@ -1,0 +1,1952 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NERC Documentation">
+      
+      
+      
+        <meta name="author" content="NERC">
+      
+      
+        <link rel="canonical" href="https://nerc-project.github.io/nerc-docs/openstack/advanced-openstack-topics/backup/backup-with-snapshots/">
+      
+      <link rel="icon" href="../../../../assets/images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.2.4, mkdocs-material-7.2.5">
+    
+    
+  <title>New England Research Cloud(NERC)</title>
+
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.be71726b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.3f5d1f46.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    <script>function __prefix(e){return new URL("../../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+      <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#backup-with-snapshots" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner md-announce">
+          <div class="md-banner__inner md-announce__inner md-grid md-typeset">
+            
+<div class="parent">
+  <!--<div class="maintain">
+    Upcoming system upgrade and maintenance on Wednesday April 6, 2022.
+    <a style="color: #0066cc;" href="https://nerc.mghpcc.org/events/nerc-system-upgrade-and-maintenance-april-6-2022/" target="_blank">[DETAILS]</a>
+  </div>-->
+  <div class="child">
+    <iframe src="https://nerc.instatus.com/embed-status/light-sm" width="230" height="52" frameBorder="0" scrolling="no" style="border: none;" ></iframe></div>
+</div>
+
+          </div>
+        </aside>
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="NERC Documentation" class="md-header__button md-logo" aria-label="NERC Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NERC Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Backup with snapshots
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m10-3a5 5 0 0 1 5 5 5 5 0 0 1-5 5H7a5 5 0 0 1-5-5 5 5 0 0 1 5-5h10M7 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3h10a3 3 0 0 0 3-3 3 3 0 0 0-3-3H7z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/nerc-project/nerc-docs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nerc-project/nerc-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="NERC Documentation" class="md-nav__button md-logo" aria-label="NERC Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    NERC Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/nerc-project/nerc-docs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nerc-project/nerc-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../about/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      <label class="md-nav__link" for="__nav_3">
+        Getting Started
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Getting Started
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/user-onboarding-on-NERC/" class="md-nav__link">
+        User Onboarding Process
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/create-a-user-portal-account/" class="md-nav__link">
+        How to Create a User Account
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get-started/get-an-allocation/" class="md-nav__link">
+        How to Get An Allocation
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      <label class="md-nav__link" for="__nav_4">
+        OpenStack
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenStack" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          OpenStack
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        OpenStack
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      <label class="md-nav__link" for="__nav_4_2">
+        Logging In
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Logging In" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Logging In
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../logging-in/access-the-openstack-dashboard/" class="md-nav__link">
+        Access the OpenStack Dashboard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../logging-in/dashboard-overview/" class="md-nav__link">
+        Dashboard Overview
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" >
+      
+      <label class="md-nav__link" for="__nav_4_3">
+        Access and Security
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Access and Security" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          Access and Security
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../access-and-security/security-groups/" class="md-nav__link">
+        Security Groups
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../access-and-security/create-a-key-pair/" class="md-nav__link">
+        Create a Key Pair
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" >
+      
+      <label class="md-nav__link" for="__nav_4_4">
+        Create &amp; Connect to the VM
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Create &amp; Connect to the VM" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          Create &amp; Connect to the VM
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/launch-a-VM/" class="md-nav__link">
+        Launch a VM
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/flavors/" class="md-nav__link">
+        Available NOVA Flavors
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/assign-a-floating-IP/" class="md-nav__link">
+        Assign a Floating IP
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4_4" type="checkbox" id="__nav_4_4_4" >
+      
+      <label class="md-nav__link" for="__nav_4_4_4">
+        Connect to the VM
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Connect to the VM" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          Connect to the VM
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/ssh-to-cloud-VM/" class="md-nav__link">
+        SSH to Cloud VM
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/bastion-host-based-ssh/" class="md-nav__link">
+        Bastion Host based SSH
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4_4_3" type="checkbox" id="__nav_4_4_4_3" >
+      
+      <label class="md-nav__link" for="__nav_4_4_4_3">
+        OpenVPN
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenVPN" data-md-level="4">
+        <label class="md-nav__title" for="__nav_4_4_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          OpenVPN
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/openvpn/" class="md-nav__link">
+        About OpenVPN
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/openvpn/openvpn_gui_for_windows/" class="md-nav__link">
+        OpenVPN GUI for Windows
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/openvpn/tunnelblick_for_macos/" class="md-nav__link">
+        Tunnelblick for MacOS
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/wireguard/" class="md-nav__link">
+        WireGuard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../create-and-connect-to-the-VM/sshuttle/" class="md-nav__link">
+        sshuttle
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_5" type="checkbox" id="__nav_4_5" >
+      
+      <label class="md-nav__link" for="__nav_4_5">
+        Migrating from MOC to NERC
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Migrating from MOC to NERC" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_5">
+          <span class="md-nav__icon md-icon"></span>
+          Migrating from MOC to NERC
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../migration-from-MOC-to-NERC/Step1/" class="md-nav__link">
+        Step 1 Gathering MOC information
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../migration-from-MOC-to-NERC/Step2/" class="md-nav__link">
+        Step 2 Creating NERC Containers to Migrate MOC Volumes into
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../migration-from-MOC-to-NERC/Step3/" class="md-nav__link">
+        Step 3 Moving Volumes from MOC to NERC
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6" type="checkbox" id="__nav_4_6" checked>
+      
+      <label class="md-nav__link" for="__nav_4_6">
+        Advanced Topics
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Advanced Topics" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_6">
+          <span class="md-nav__icon md-icon"></span>
+          Advanced Topics
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_1" type="checkbox" id="__nav_4_6_1" >
+      
+      <label class="md-nav__link" for="__nav_4_6_1">
+        Setting Up Own Network
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Setting Up Own Network" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_1">
+          <span class="md-nav__icon md-icon"></span>
+          Setting Up Own Network
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setting-up-a-network/set-up-a-private-network/" class="md-nav__link">
+        Set up a Private Network
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setting-up-a-network/create-a-router/" class="md-nav__link">
+        Create a Router
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_2" type="checkbox" id="__nav_4_6_2" >
+      
+      <label class="md-nav__link" for="__nav_4_6_2">
+        OpenStack CLI
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="OpenStack CLI" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_2">
+          <span class="md-nav__icon md-icon"></span>
+          OpenStack CLI
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../openstack-cli/openstack-CLI/" class="md-nav__link">
+        OpenStack CLI
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../openstack-cli/launch-a-VM-using-openstack-CLI/" class="md-nav__link">
+        Launch a VM using OpenStack CLI
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_3" type="checkbox" id="__nav_4_6_3" >
+      
+      <label class="md-nav__link" for="__nav_4_6_3">
+        Persistent Storage
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Persistent Storage" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_3">
+          <span class="md-nav__icon md-icon"></span>
+          Persistent Storage
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../persistent-storage/volumes/" class="md-nav__link">
+        Block Storage/ Volumes/ Cinder
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../persistent-storage/object-storage/" class="md-nav__link">
+        Object Storage/ Swift
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_4" type="checkbox" id="__nav_4_6_4" checked>
+      
+      <label class="md-nav__link" for="__nav_4_6_4">
+        Backup your instance and volume
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Backup your instance and volume" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_4">
+          <span class="md-nav__icon md-icon"></span>
+          Backup your instance and volume
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Backup with snapshots
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Backup with snapshots
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#create-and-use-instance-snapshots" class="md-nav__link">
+    Create and use Instance snapshots
+  </a>
+  
+    <nav class="md-nav" aria-label="Create and use Instance snapshots">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-to-create-an-instance-snapshot" class="md-nav__link">
+    How to create an instance snapshot
+  </a>
+  
+    <nav class="md-nav" aria-label="How to create an instance snapshot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-cli" class="md-nav__link">
+    Using the CLI
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-openstack-client" class="md-nav__link">
+    Using the openstack client
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#to-view-newly-created-snapshot-image" class="md-nav__link">
+    To view newly created snapshot image
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-horizon-dashboard" class="md-nav__link">
+    Using Horizon dashboard
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#take-and-use-volume-snapshots" class="md-nav__link">
+    Take and use Volume Snapshots
+  </a>
+  
+    <nav class="md-nav" aria-label="Take and use Volume Snapshots">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#volume-snapshots" class="md-nav__link">
+    Volume snapshots
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-create-a-volume-snapshot" class="md-nav__link">
+    How to create a volume snapshot
+  </a>
+  
+    <nav class="md-nav" aria-label="How to create a volume snapshot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-openstack-cli" class="md-nav__link">
+    Using the OpenStack CLI
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the OpenStack CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-openstack-client-commands" class="md-nav__link">
+    Using the openstack client commands
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-nercs-horizon-dashboard" class="md-nav__link">
+    Using NERC's Horizon dashboard
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6_5" type="checkbox" id="__nav_4_6_5" >
+      
+      <label class="md-nav__link" for="__nav_4_6_5">
+        Terraform
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Terraform" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_6_5">
+          <span class="md-nav__icon md-icon"></span>
+          Terraform
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../terraform/terraform-on-NERC/" class="md-nav__link">
+        Terraform on NERC
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../python-sdk/python-SDK/" class="md-nav__link">
+        Python SDK
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setting-up-your-own-images/how-to-build-windows-image/" class="md-nav__link">
+        Setting up custom images
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      <label class="md-nav__link" for="__nav_5">
+        Other Tools On NERC
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Other Tools On NERC" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Other Tools On NERC
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/" class="md-nav__link">
+        Other Useful Tools
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2" type="checkbox" id="__nav_5_2" >
+      
+      <label class="md-nav__link" for="__nav_5_2">
+        Kubernetes
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Kubernetes" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_2">
+          <span class="md-nav__icon md-icon"></span>
+          Kubernetes
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/kubernetes/" class="md-nav__link">
+        Kubernetes Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/comparisons/" class="md-nav__link">
+        K8s Flavors Comparision
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_3" type="checkbox" id="__nav_5_2_3" >
+      
+      <label class="md-nav__link" for="__nav_5_2_3">
+        Development environment
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Development environment" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_3">
+          <span class="md-nav__icon md-icon"></span>
+          Development environment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/minikube/" class="md-nav__link">
+        Minikube
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/minishift/" class="md-nav__link">
+        Minishift
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/kind/" class="md-nav__link">
+        Kind
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/microk8s/" class="md-nav__link">
+        MicroK8s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_3_5" type="checkbox" id="__nav_5_2_3_5" >
+      
+      <label class="md-nav__link" for="__nav_5_2_3_5">
+        K3s
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="K3s" data-md-level="4">
+        <label class="md-nav__title" for="__nav_5_2_3_5">
+          <span class="md-nav__icon md-icon"></span>
+          K3s
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k3s/k3s/" class="md-nav__link">
+        K3s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k3s/k3s-ha-cluster/" class="md-nav__link">
+        K3s with High Availibility(HA) setup
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k3s/k3s-using-k3sup/" class="md-nav__link">
+        Multi-master HA K3s cluster using k3sup
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k3s/k3s-using-k3d/" class="md-nav__link">
+        Single-Node K3s Cluster using k3d
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k3s/k3s-ha-cluster-using-k3d/" class="md-nav__link">
+        Multi-master K3s cluster setup using k3d
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/k0s/" class="md-nav__link">
+        k0s
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/crc/" class="md-nav__link">
+        CRC - Red Hat Code Ready Containers
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_4" type="checkbox" id="__nav_5_2_4" >
+      
+      <label class="md-nav__link" for="__nav_5_2_4">
+        Production environment
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Production environment" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_4">
+          <span class="md-nav__icon md-icon"></span>
+          Production environment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_4_1" type="checkbox" id="__nav_5_2_4_1" >
+      
+      <label class="md-nav__link" for="__nav_5_2_4_1">
+        Kubeadm
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Kubeadm" data-md-level="4">
+        <label class="md-nav__title" for="__nav_5_2_4_1">
+          <span class="md-nav__icon md-icon"></span>
+          Kubeadm
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/kubeadm/single-master-clusters-with-kubeadm/" class="md-nav__link">
+        Bootstrapping cluster with kubeadm
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/kubeadm/HA-clusters-with-kubeadm/" class="md-nav__link">
+        Creating a HA cluster with kubeadm
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../other-tools/kubernetes/kubespray/" class="md-nav__link">
+        Kubespray
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#create-and-use-instance-snapshots" class="md-nav__link">
+    Create and use Instance snapshots
+  </a>
+  
+    <nav class="md-nav" aria-label="Create and use Instance snapshots">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-to-create-an-instance-snapshot" class="md-nav__link">
+    How to create an instance snapshot
+  </a>
+  
+    <nav class="md-nav" aria-label="How to create an instance snapshot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-cli" class="md-nav__link">
+    Using the CLI
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-openstack-client" class="md-nav__link">
+    Using the openstack client
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#to-view-newly-created-snapshot-image" class="md-nav__link">
+    To view newly created snapshot image
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-horizon-dashboard" class="md-nav__link">
+    Using Horizon dashboard
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#take-and-use-volume-snapshots" class="md-nav__link">
+    Take and use Volume Snapshots
+  </a>
+  
+    <nav class="md-nav" aria-label="Take and use Volume Snapshots">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#volume-snapshots" class="md-nav__link">
+    Volume snapshots
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-create-a-volume-snapshot" class="md-nav__link">
+    How to create a volume snapshot
+  </a>
+  
+    <nav class="md-nav" aria-label="How to create a volume snapshot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-openstack-cli" class="md-nav__link">
+    Using the OpenStack CLI
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the OpenStack CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-openstack-client-commands" class="md-nav__link">
+    Using the openstack client commands
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-nercs-horizon-dashboard" class="md-nav__link">
+    Using NERC's Horizon dashboard
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/nerc-project/nerc-docs/edit/master/docs/openstack/advanced-openstack-topics/backup/backup-with-snapshots.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="backup-with-snapshots">Backup with snapshots</h1>
+<p>When you start a new instance, you can choose the Instance Boot Source from the
+following list:</p>
+<ul>
+<li>boot from image</li>
+<li>boot from instance snapshot</li>
+<li>boot from volume</li>
+<li>boot from volume snapshot</li>
+</ul>
+<p><img alt="Launching an Instance Boot Source" src="../images/instance-boot-source-options.png" /></p>
+<p>When the instance boots from image or from snapshot, the instance has an ephemeral
+disk. This means that the disk of the instance is not listed under the "Volumes"
+list. This also means that if you delete the instance all the data on that disk
+is lost forever.</p>
+<p>To make a backup of the ephemeral disk you will need to create a snapshot of instance
+itself. The resulting snapshot in this case will be a openstack image type. You will
+be able to find it listed in the "Compute -&gt; Images" list.</p>
+<p>When the instance boots from volume this means that it will use an existing volume
+listed in the "Volumes" menu. In this case the volume is persistent and will not
+be deleted even if the instance is deleted, unless explicitely selected the <strong>Yes</strong>
+option on "Delete Volume on Instance Delete".</p>
+<h2 id="create-and-use-instance-snapshots">Create and use Instance snapshots</h2>
+<p>The OpenStack snapshot mechanism allows you to create new images from your instances
+while they are either running or stopped.</p>
+<p>This mainly serves two purposes:</p>
+<ul>
+<li>
+<p>*<em>As a backup mechanism:</em> save the main disk of your instance to an image and
+later boot a new instance from this image with the saved data.</p>
+</li>
+<li>
+<p><em>As a templating mechanism:</em> customise and upgrade a base image and save it to
+use as a template for new instances.</p>
+</li>
+</ul>
+<h3 id="how-to-create-an-instance-snapshot">How to create an instance snapshot</h3>
+<h4 id="using-the-cli">Using the CLI</h4>
+<ul>
+<li><strong>Prerequisites</strong></li>
+</ul>
+<p>To run the OpenStack CLI commands, you need to have:</p>
+<ul>
+<li>OpenStack CLI setup, see <a href="https://nerc-project.github.io/nerc-docs/openstack/advanced-openstack-topics/openstack-cli/openstack-CLI/#command-line-setup">OpenStack Command Line setup</a>
+for more information.</li>
+</ul>
+<p>To snapshot an instance to an image using the CLI, do this:</p>
+<h5 id="using-the-openstack-client">Using the openstack client</h5>
+<pre><code>openstack server image create --name &lt;name of my snapshot&gt; --wait &lt;instance name or uuid&gt;
+</code></pre>
+<h5 id="to-view-newly-created-snapshot-image">To view newly created snapshot image</h5>
+<pre><code>openstack image show --fit-width &lt;name of my snapshot&gt;
+</code></pre>
+<p>Using this snapshot, the VM can be rolled back to the previous state with a
+server rebuild.</p>
+<pre><code>openstack server rebuild --image &lt;name of my snapshot&gt; &lt;existing instance name or uuid&gt;
+</code></pre>
+<p>For e.g.</p>
+<pre><code>openstack server image create --name my-snapshot --wait test-nerc-0
+
+openstack image show --fit-width my-snapshot
+
+openstack server rebuild --image my-snapshot test-nerc-0
+</code></pre>
+<div class="admonition info">
+<p class="admonition-title">Important Information</p>
+<p>During the time it takes to do the snapshot, the machine can become unresponsive.</p>
+</div>
+<h4 id="using-horizon-dashboard">Using Horizon dashboard</h4>
+<p>Once you’re logged in to NERC's Horizon dashboard, you can create a snapshot via
+the "Compute -&gt; Instances" page by clicking on the "Create snapshot" action button
+on desired instance as shown below:</p>
+<p><img alt="Ceate Instance Snapshot" src="../images/create-instance-snapshot.png" /></p>
+<p><img alt="Instance Snapshot Information" src="../images/instance-snapshot-info.png" /></p>
+<p>Once created, you can find the image listed under Images in the Horizon dashboard:</p>
+<p><img alt="Snapshot Instance Created" src="../images/instance-image-snapshot.png" /></p>
+<p>You have the option to launch this image as a new instance, or by clicking on the
+arrow next to Launch, create a volume from the image, edit details about the
+image, update the image metadata, or delete it:</p>
+<p><img alt="Snapshot Instance Options" src="../images/snapshot-instance-options.png" /></p>
+<p>You can then select the snapshot when creating a new instance or directly click
+"Launch" button to use the snapshot image to launch a new instance.</p>
+<div class="admonition warning">
+<p class="admonition-title">Live snapshots and data consistency</p>
+<p>We call a snapshot taken against a running instance with no downtime a
+"live snapshot". These snapshots are simply disk-only snapshots, and may be
+inconsistent if the instance's OS is not aware of the snapshot being taken.</p>
+</div>
+<hr />
+<h2 id="take-and-use-volume-snapshots">Take and use Volume Snapshots</h2>
+<h3 id="volume-snapshots">Volume snapshots</h3>
+<p>You can also create snapshots of a volume, that then later can be used to
+create other volumes or to rollback to a precedent point in time. You can take
+a snapshot of volume that may or may not be attached to an instance. Snapshot of
+available volumes or volumes that are not attached to an instance does not affect
+the data on the volume. Snapshot of a volume serves as a backup for the persistent
+data on the volume at a given point in time. Snapshots are of the size of the
+actual data existing on the volume at the time at which the snapshot is taken.
+The creation of a snapshot takes a few seconds and it can be done while the volume
+is in-use.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Taking snapshots of volumes that are in use or attached to active instances
+can result in data inconsistency on the volume.</p>
+</div>
+<p>Once you have the snapshot, you can use it to create other volumes based on
+this snapshot. Creation time for these volumes may depend on the type of the
+volume you are creating as it may entitle some data transfer.</p>
+<h3 id="how-to-create-a-volume-snapshot">How to create a volume snapshot</h3>
+<h4 id="using-the-openstack-cli">Using the OpenStack CLI</h4>
+<ul>
+<li><strong>Prerequisites</strong></li>
+</ul>
+<p>To run the OpenStack CLI commands, you need to have:</p>
+<ul>
+<li>OpenStack CLI setup, see <a href="https://nerc-project.github.io/nerc-docs/openstack/advanced-openstack-topics/openstack-cli/openstack-CLI/#command-line-setup">OpenStack Command Line setup</a>
+for more information.</li>
+</ul>
+<p>To snapshot an instance to an image using the CLI, do this:</p>
+<h5 id="using-the-openstack-client-commands">Using the openstack client commands</h5>
+<pre><code>$ openstack volume snapshot create --volume &lt;volume name or uuid&gt; &lt;name of my snapshot&gt;
+
+For e.g.
+
+$ openstack volume snapshot create --volume test_volume my-volume-snapshot
++-------------+--------------------------------------+
+| Field       | Value                                |
++-------------+--------------------------------------+
+| created_at  | 2022-04-12T19:48:42.707250           |
+| description | None                                 |
+| id          | f1cf6846-4aba-4eb8-b3e4-2ff309f8f599 |
+| name        | my-volume-snapshot                   |
+| properties  |                                      |
+| size        | 25                                   |
+| status      | creating                             |
+| updated_at  | None                                 |
+| volume_id   | f2630d21-f8f5-4f02-adc7-14a3aa72cc9d |
++-------------+--------------------------------------+
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Important Information</p>
+<p>if the volume is in-use, you may need to specify <code>--force</code></p>
+</div>
+<p>You can list the volume snapshots with the following command.</p>
+<pre><code>$ openstack volume snapshot list
+
+For e.g.
+
+$ openstack volume snapshot list
++--------------------------------------+--------------------+-------------+-----------+------+
+| ID                                   | Name               | Description | Status    | Size |
++--------------------------------------+--------------------+-------------+-----------+------+
+| f1cf6846-4aba-4eb8-b3e4-2ff309f8f599 | my-volume-snapshot | None        | available |   25 |
++--------------------------------------+--------------------+-------------+-----------+------+
+</code></pre>
+<p>Once the volume snapshot is in available state, then you can create other volumes
+based on that snapshot. You don't need to specify the size of the volume, it will
+use the size of the snapshot.</p>
+<pre><code>openstack volume create --description --source &lt;name of my snapshot&gt; "Volume from an snapshot" &lt;volume name or uuid&gt;
+</code></pre>
+<p>You can delete the snapshots just by issuing the following command</p>
+<pre><code>$ openstack volume snapshot delete &lt;name of my snapshot&gt;
+
+For e.g.
+
+$ openstack volume snapshot delete my-volume-snapshot
+</code></pre>
+<h4 id="using-nercs-horizon-dashboard">Using NERC's Horizon dashboard</h4>
+<p>Once you’re logged in to NERC's Horizon dashboard, you can create a snapshot via
+the "Volumes" menu by clicking on the "Create Snapshot" action button
+on desired volume as shown below:</p>
+<p><img alt="Create Volume Snapshot" src="../images/volume-create-snapshot.png" /></p>
+<p>In the dialog box that opens, enter a snapshot name and a brief description.</p>
+<p><img alt="Volume Snapshot Information" src="../images/volume-snapshot-info.png" /></p>
+<p>Once a snapshot is created, you can manage them under the Volumes menu in the
+Horizon dashboard under Volume Snapshots:</p>
+<p><img alt="Volume Snapshots List" src="../images/volume-snapshots-list.png" /></p>
+<p>Create Volume from Snapshot:</p>
+<p><img alt="Create Volume from Volume Snapshot" src="../images/create-volume-from-volume-snapshot.png" /></p>
+<p>In the dialog box that opens, enter a volume name and a brief description.</p>
+<p><img alt="Create Volume Popup" src="../images/create-volume-from-volume-snapshot-info.png" /></p>
+<p>Any snapshots made into volumes can be found under Volumes:</p>
+<p><img alt="New Volume from Volume Snapshot" src="../images/new-volume-from-snashot.png" /></p>
+<div class="admonition info">
+<p class="admonition-title">Information</p>
+<p>Keep in mind that any volumes and snapshots stored take up space in your project.
+Delete any you no longer need to conserve space.</p>
+</div>
+<hr />
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+  <footer class="md-footer">
+    <aside class="footer-left">
+        <a href="http://www.bu.edu/tech/services/research/" title="Boston University" target="_blank">
+          <img alt="Boston University Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/boston-university-logo.png"/>
+        </a>
+
+    </aside>
+
+    <aside class="footer-right">
+        <a href="https://www.mghpcc.org/" title="MGHPCC" target="_blank">
+          <img alt="MGHPCC Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/MGHPCC_logo.png"/>
+        </a>
+    </aside>
+
+    <aside class="footer-center">
+        <a href="http://rc.fas.harvard.edu" title="Harvard University" target="_blank">
+          <img alt="Harvard University Logo" src="https://nerc-project.github.io/nerc-docs/assets/images/harvard-university_logo.png"/>
+        </a>
+    </aside>
+  </footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.409db549.min.js", "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.56a63758.min.js"></script>
+      
+        <script src="../../../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>
